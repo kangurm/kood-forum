@@ -9,15 +9,17 @@ import (
 var tpl *template.Template
 
 func main() {
+
 	tpl, _ = template.ParseGlob("templates/*.html")
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
 	fmt.Println("Server running at http://localhost:" + port)
-
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
+
 	if r.URL.Path != "/" {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
 		return
@@ -27,6 +29,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ErrorHandler(w http.ResponseWriter, s string, i int) {
+
 	data := struct {
 		StatusCode int
 		Message    string
@@ -34,6 +37,7 @@ func ErrorHandler(w http.ResponseWriter, s string, i int) {
 		StatusCode: i,
 		Message:    s,
 	}
+
 	w.WriteHeader(i)
 	tpl.ExecuteTemplate(w, "error.html", data)
 }
