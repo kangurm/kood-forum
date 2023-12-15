@@ -1,15 +1,23 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var tpl *template.Template
 
 func main() {
-
+	db, err := sql.Open("sqlite3", "database.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 	tpl, _ = template.ParseGlob("templates/*.html")
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
