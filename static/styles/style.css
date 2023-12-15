@@ -1,3 +1,35 @@
 h1 {
     text-align: center;
 }
+header {
+    background-color: rgb(74, 224, 84);
+    left: 0;
+    right: 0;
+    top: 0;
+    position: absolute;
+    height: 9vh;
+}
+
+footer {
+    background-color: rgb(98, 255, 0);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: absolute;
+    height: 9vh;
+    text-align: center;
+    font-size: 2vh;
+}
+
+#buttonHome {
+    margin: 1vh;
+    height: 7vh;
+}
+
+.main {
+    margin-top: 9vh;
+}
+
+#hContainer {
+    overflow-x: visible;
+}
