@@ -1,35 +1,73 @@
-h1 {
-    text-align: center;
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #252526;
 }
-header {
-    background-color: rgb(74, 224, 84);
-    left: 0;
-    right: 0;
+
+header  {
+    position: fixed;
     top: 0;
-    position: absolute;
-    height: 9vh;
+    left: 0;
+    width: 100%;
 }
 
 footer {
-    background-color: rgb(98, 255, 0);
+    position: absolute;
     bottom: 0;
     left: 0;
-    right: 0;
-    position: absolute;
-    height: 9vh;
+    width: 100%;
     text-align: center;
-    font-size: 2vh;
+    background-color: #2d2d30;
 }
 
-#buttonHome {
-    margin: 1vh;
-    height: 7vh;
+.fixedContainer {
+    background-color: #2d2d30;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 30px;
+}
+
+.start {
+}
+
+.middle {
+}
+
+.end {
 }
 
 .main {
-    margin-top: 9vh;
+    margin-top: 40px;
+    background-color: #2d2d30;
+    width: 70%;
+    border-radius: 1%;
 }
 
-#hContainer {
-    overflow-x: visible;
+.contentMenu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.likeDiv, .postTitle {
+    display: inline-block;
+}
+
+.postLikes, .postDislikes {
+    display: block;
+    text-align: center;
+    position: relative;
+    transform: translateY(10px);
+    margin-right: 10px;
+}
+
+.postTitle {
+    font-size: 1rem;
+}
+
+.postBar {
+    background-color: rgb(73, 73, 72);
+    padding: 2%;
 }

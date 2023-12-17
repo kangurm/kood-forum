@@ -8,16 +8,40 @@
     </head>
     <body>
         <header>
-            <div id="hContainer">
-                <button id="buttonHome">
-                    Home Page
-                </button>
+            <div class="fixedContainer">
+                <div class="start">
+                    <a href="/">Home</a>
+                </div>
+                <div class="middle">
+                    <input type="search">
+                </div>
+                <div class="end">
+                    <a href="/login">Login</a>
+                </div>
             </div>
         </header>
         <div class="main">
-            <h1>
-                Hello this is a forum!
-            </h1>
+            <div class="navbar">
+                <button>Top</button>
+                <button>Hot</button>
+                <button>New</button>
+            </div>
+            <div class="contentMenu">
+                <div class="postBar">
+                    <div class="likeDiv">
+                        <span class="postLikes">10</span>
+                        <span class="postDislikes">2</span>
+                    </div>
+                    <h2 class="postTitle">Hello this is my first post!</h2>
+                </div>
+                <div class="postBar">
+                    <div class="likeDiv">
+                        <span class="postLikes">10k</span>
+                        <span class="postDislikes">2</span>
+                    </div>
+                    <h2 class="postTitle">Hello this is my first post!</h2>
+                </div>
+            </div>
         </div>
         <footer>
             this is a footer
