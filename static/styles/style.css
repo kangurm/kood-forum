@@ -1,3 +1,8 @@
+*, *::after, *::before {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
 
 body {
     display: flex;
@@ -27,47 +32,101 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 30px;
+    height: 2.5rem;
 }
 
 .start {
+    padding-left: 1em;
 }
 
 .middle {
 }
 
-.end {
+.searchBar {
+    width: 20rem;
+    height: 1.5rem;
 }
 
+.end {
+    padding-right: 1em;
+}
+
+.BODY {
+    display: flex;
+    justify-content: flex-start;
+    flex: content;
+}
 .main {
-    margin-top: 40px;
+    margin-top: 3rem;
     background-color: #2d2d30;
     width: 70%;
     border-radius: 1%;
+    display: inline-block;
+}
+
+.subCategoriesMain {
+    margin-top: 3rem;
+    margin-right: 1rem;
+    width: 25%;
+    height: 500px;
+    background-color: #2d2d30;
 }
 
 .contentMenu {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
 }
+
 .likeDiv, .postTitle {
-    display: inline-block;
+    display: block;
 }
 
 .postLikes, .postDislikes {
     display: block;
     text-align: center;
-    position: relative;
-    transform: translateY(10px);
-    margin-right: 10px;
+    width: 30px;
 }
 
 .postTitle {
-    font-size: 1rem;
+    display: flex;
+    font-size: 0.9rem;
 }
 
 .postBar {
     background-color: rgb(73, 73, 72);
     padding: 2%;
+    display: flex;
+    align-items: center;
+}
+
+.postBar:hover {
+    border: rgb(108, 108, 107);
+    border-style: solid;
+    border-width: 1px;
+    cursor: pointer;
+}
+
+a::after, a::before, a:hover, a {
+    color: greenyellow;
+    font-style: normal;
+}
+
+.sortButtons {
+    color: black;
+    background-color: greenyellow;
+    padding: 4px 5px 4px 5px;
+}
+
+.postLikes {
+    color: rgb(82, 255, 47);
+}
+
+.postDislikes {
+    color: red;
+}
+
+.likeDiv {
+    justify-self: start;
+    padding-right: 20px;
 }
