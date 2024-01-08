@@ -12,8 +12,6 @@ import (
 
 var tpl *template.Template
 
-//This is a huge focking comment
-
 func main() {
 	functions.InitDb()
 	defer functions.CloseDb()
