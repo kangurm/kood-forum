@@ -9,6 +9,8 @@ body {
     justify-content: center;
     align-items: center;
     background-color: #252526;
+    max-width: 1920px;
+    /* max-height: 1080px; */
 }
 
 header  {
@@ -18,6 +20,7 @@ header  {
     width: 100%;
 }
 
+/* DEPRECATED */
 footer {
     position: absolute;
     bottom: 0;
@@ -36,14 +39,33 @@ footer {
 }
 
 .start {
-    padding-left: 1em;
+    padding-left: 0.5rem;
+    display: flex;
 }
 
-.middle {
+.menuIconBars {
+    width: 26px;
+    height: 3px;
+    background-color: black;
+    margin: 6px 0;
+}
+
+.menuIcon {
+    padding-right: 0.8rem
+}
+
+.menuIcon:hover {
+    cursor: pointer;
+}
+
+#homeArticle {
+    align-self: center;
 }
 
 .searchBar {
-    width: 20rem;
+    max-width: 100vmax;
+    min-width: 50vmin;
+    width: 30vw;
     height: 1.5rem;
 }
 
@@ -51,27 +73,51 @@ footer {
     padding-right: 1em;
 }
 
+
 .BODY {
     display: flex;
-    justify-content: flex-start;
     flex: content;
 }
+
 .main {
     margin-top: 3rem;
     background-color: #2d2d30;
-    width: 70%;
     border-radius: 1%;
     display: inline-block;
+    height: auto;
+    max-width: 1920px;
+    max-height: 1080px;
 }
 
-.subCategoriesMain {
+.leftSidebarContainer {
     margin-top: 3rem;
     margin-right: 1rem;
-    width: 25%;
-    height: 500px;
     background-color: #2d2d30;
+    width: 10rem;
+    height: 100%;
 }
 
+.topicsArea {
+    text-align: center;
+}
+
+.topics {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 15px 5px 15px;
+    border-radius: 10em;
+    margin-left: 0.4em;
+}
+
+.topics:hover {
+    cursor: pointer;
+}
+
+.topicButtons {
+    background-color: #afafaf;
+    padding: 0.7em;
+    border-radius: 2rem;
+}
 .contentMenu {
     display: flex;
     flex-direction: column;
@@ -86,18 +132,21 @@ footer {
     display: block;
     text-align: center;
     width: 30px;
+    font-size: 1rem;
 }
 
 .postTitle {
-    display: flex;
-    font-size: 0.9rem;
+    font-size: small;
 }
 
 .postBar {
-    background-color: rgb(73, 73, 72);
+    background-color: #494948;
     padding: 2%;
     display: flex;
     align-items: center;
+    height: fit-content;
+    min-height: 2.2rem;
+    max-height: 5rem;
 }
 
 .postBar:hover {
@@ -129,4 +178,94 @@ a::after, a::before, a:hover, a {
 .likeDiv {
     justify-self: start;
     padding-right: 20px;
+}
+
+.navBar {
+    background-color: black;
+}
+
+hr {
+    border-color: black;
+    margin: 10px;
+}
+
+.dropdownName {
+    margin-right: 10px
+}
+
+@media only screen and (max-width: 512px) {
+    .leftSidebarContainer {
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 512px) {
+    .menuIcon {
+        display: none;
+    }
+}
+
+.pageContainer {
+    text-align: center;
+}
+
+.centerContainer {
+    display: flex;
+    height: 500px;
+    width: 800px;
+    border: 1px solid black;
+    margin: auto;
+    margin-top: 50px;
+    background-color: #2d2d30;
+}
+
+.loginForm {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.loginForm h2 {
+    font-size: 3rem;
+    margin: 40px;
+    color: greenyellow;
+}
+
+.inputBox {
+    padding: 12px;
+    width: 65%;
+    margin: 15px;
+    border: 1px solid black;
+    outline: none;
+    border-radius: 20px;
+    background-color: #494948;
+    color: aliceblue;
+}
+
+.inputBox::placeholder {
+    color: #afafaf;
+}
+
+#submit {
+    padding: 12px 30px;
+    width: 40%;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    outline: none;
+    border-radius: 20px;
+    background-color: greenyellow;
+}
+
+#submit:hover {
+    cursor: pointer;
+    background-color: green;
+}
+
+.solidHR {
+    width: 100%;
+    border: 0;
+    border-top: 1px solid;
+    margin-bottom: 20px;
 }

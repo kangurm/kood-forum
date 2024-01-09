@@ -11,6 +11,8 @@ import (
 
 var tpl *template.Template
 
+//This is a huge focking comment
+
 func main() {
 	db, err := sql.Open("sqlite3", "database.db")
 	if err != nil {
@@ -21,6 +23,7 @@ func main() {
 	tpl, _ = template.ParseGlob("templates/*.html")
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
+	http.HandleFunc("/login", LoginHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
@@ -33,7 +36,11 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/html")
-	tpl.ExecuteTemplate(w, "home.html", nil) //replace nil with data
+	tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
+}
+
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	tpl.ExecuteTemplate(w, "login.html", nil)
 }
 
 func ErrorHandler(w http.ResponseWriter, s string, i int) {
