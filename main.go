@@ -3,11 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"html/template"
 	"log"
 	"net/http"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 var tpl *template.Template
@@ -17,6 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer db.Close()
 	tpl, _ = template.ParseGlob("templates/*.html")
 	port := "8080"
