@@ -15,12 +15,6 @@ var tpl *template.Template
 //This is a huge focking comment
 
 func main() {
-	db, err := sql.Open("sqlite3", "database.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer db.Close()
 
 	tpl, _ = template.ParseGlob("templates/*.html")
 	port := "8080"
