@@ -3,10 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"html/template"
 	"log"
 	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var tpl *template.Template
@@ -25,6 +26,7 @@ func main() {
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
 	http.HandleFunc("/login", LoginHandler)
+	http.HandleFunc("/register", RegisterHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
@@ -42,6 +44,9 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "login.html", nil)
+}
+func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	tpl.ExecuteTemplate(w, "register.html", nil)
 }
 
 func ErrorHandler(w http.ResponseWriter, s string, i int) {
