@@ -20,6 +20,7 @@ func main() {
 	}
 
 	defer db.Close()
+
 	tpl, _ = template.ParseGlob("templates/*.html")
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
