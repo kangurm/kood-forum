@@ -1,10 +1,9 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
+	"forum/functions"
 	"html/template"
-	"log"
 	"net/http"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -15,7 +14,9 @@ var tpl *template.Template
 //This is a huge focking comment
 
 func main() {
+	functions.InitDb()
 
+	//defer db.Close()
 	tpl, _ = template.ParseGlob("templates/*.html")
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
