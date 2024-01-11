@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel='stylesheet' href='/static/styles/style.css'>
+        <title>Login</title>
+    </head>
+    <body>
+        <div class="centerContainer">
+            <form action class="loginForm">
+                <h3 class="h3title">Create a post</h3>
+                <hr class="solidHR">
+                <textarea type="text" name="userPostTitle" class="inputBox"
+                    maxlength="138" id="userPostTitle"
+                    placeholder="Title" contenteditable></textarea>
+                <textarea type="body" name="userPostBodyText" class="inputBox"
+                    id="createPostBodyText" placeholder="Text (Required)"
+                    maxlength="15000"></textarea>
+                <input type="submit" value="Create!" id="submit">
+            </form>
+        </div>
+    </body>
+    <script>
+        const tx = document.getElementsByTagName("textarea");
+        for (let i = 0; i < tx.length; i++) {
+          tx[i].setAttribute("style", "height:" + (tx[i].scrollHeight) + "px;overflow-y:hidden;");
+          tx[i].addEventListener("input", OnInput, false);
+        }
+
+        function OnInput() {
+          this.style.height = 0;
+          this.style.height = (this.scrollHeight) + "px";
+        }
+    </script>
+</html>

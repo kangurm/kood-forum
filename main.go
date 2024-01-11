@@ -20,6 +20,7 @@ func main() {
 	http.HandleFunc("/", IndexHandler)
 	http.HandleFunc("/login", LoginHandler)
 	http.HandleFunc("/register", RegisterHandler)
+	http.HandleFunc("/create-a-post", CreateAPostHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
@@ -62,6 +63,10 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		functions.RegisterUserToDb(username, firstname, lastname, password, email)
 	}
 
+}
+
+func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
+	tpl.ExecuteTemplate(w, "create-a-post.html", nil)
 }
 
 func ErrorHandler(w http.ResponseWriter, s string, i int) {
