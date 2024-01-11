@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel='stylesheet' href='/static/styles/style.css'>
+        <title>Forum</title>
+    </head>
+    <body>
+        <header>
+            <nav class="fixedContainer">
+                <div class="start">
+                    <div class="menuIcon">
+                        <div class="menuIconBars"></div>
+                        <div class="menuIconBars"></div>
+                        <div class="menuIconBars"></div>
+                    </div>
+                    <a id="homeArticle" href="/">Home</a>
+                </div>
+                <div class="middle">
+                    <input class="searchBar" type="search">
+                </div>
+                <div class="end">
+                    <a href="/login">Login</a>
+                </div>
+            </nav>
+        </header>
+        <div class="BODY">
+            <div class="leftSidebarContainer">
+                <div id="topicHead" class="topics">
+                    <span class="dropdownName">TOPICS</span>
+                    <span class="dropdownArrow">↴</span>
+                </div>
+                <hr>
+                <nav class="topicsArea">
+                    <a class="topics">World News</a>
+                    <a class="topics">Web Design</a>
+                    <a class="topics">Game Dev</a>
+                    <a class="topics">Cooking</a>
+                    <a class="topics">Other</a>
+                    <h4>...</h4>
+                </nav>
+            </div>
+            <div class="main" style="width: 100%;">
+                <div class="navbar">
+                    <button id="topButton" class="sortButtons">Top</button>
+                    <button id="hotButton" class="sortButtons">Hot</button>
+                    <button id="newButton" class="sortButtons">New</button>
+                </div>
+                <div class="contentMenu">
+                    <div class="postBar">
+                        <div class="likeDiv">
+                            <span class="postLikes">10</span>
+                            <span class="postDislikes">2</span>
+                        </div>
+                        <h2 class="postTitle">Hello this is my first post!</h2>
+                    </div>
+                    <div class="postBar">
+                        <div class="likeDiv">
+                            <span class="postLikes">1</span>
+                            <span class="postDislikes">10</span>
+                        </div>
+                        <h2 class="postTitle">Lorem ipsum dolor sit amet
+                            consectetur, adipisicing elit. Quae dolorem debitis
+                            fuga adipisci animi quaerat vel officia, facilis
+                            cumque laudantium, voluptatem tenetur accusantium
+                            maiores quia ea, neque dolore expedita? Rem.</h2>
+                    </div>
+                    <div class="postBar">
+                        <div class="likeDiv">
+                            <span class="postLikes">100</span>
+                            <span class="postDislikes">2</span>
+                        </div>
+                        <h2 class="postTitle">Hello this is my first post!</h2>
+                    </div>
+                    <div class="pageContainer">
+                        <a>1</a>
+                        <a>2</a>
+                        <a>3</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

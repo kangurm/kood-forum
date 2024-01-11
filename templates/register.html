@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel='stylesheet' href='/static/styles/style.css'>
+        <title>Register Account</title>
+    </head>
+    <body>
+        <div class="centerContainer">
+            <form action="http://localhost:8080/register" method="post">
+                <h2>REGISTER</h2>
+                <hr class="solidHR">
+                <input type="text" name="username" class="inputBox" placeholder="Username" required>
+                <input type="text" name="firstname" class="inputBox" placeholder="First Name" required>
+                <input type="text" name="lastname" class="inputBox" placeholder="Last Name" required>
+                <input type="password" name="password" class="inputBox" placeholder="Password" required>
+                <input type="email" name="email" class="inputBox" placeholder="Email" required>
+                <input type="submit" value="REGISTER" id="submit">
+                <a href="/login">Already a user? Log in!</a>
+            </form>
+        </div>
+    </body>
+</html>

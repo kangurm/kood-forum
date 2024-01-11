@@ -1,8 +1,8 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
+	"forum/functions"
 	"html/template"
 	"log"
 	"net/http"
@@ -12,15 +12,16 @@ import (
 
 var tpl *template.Template
 
+//This is a huge focking comment
+
 func main() {
-	db, err := sql.Open("sqlite3", "database.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+	functions.InitDb()
+	defer functions.CloseDb()
 	tpl, _ = template.ParseGlob("templates/*.html")
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
+	http.HandleFunc("/login", LoginHandler)
+	http.HandleFunc("/register", RegisterHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
@@ -33,7 +34,36 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/html")
-	tpl.ExecuteTemplate(w, "home.html", nil) //replace nil with data
+	tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
+}
+
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	tpl.ExecuteTemplate(w, "login.html", nil)
+}
+func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Received a request with method:", r.Method)
+	if r.Method == "GET" {
+		http.ServeFile(w, r, "templates/register.html")
+		return
+	}
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		if err != nil {
+			http.Error(w, "Error parsing the form", http.StatusInternalServerError)
+			return
+		}
+
+		username := r.FormValue("username")
+		firstname := r.FormValue("firstname")
+		lastname := r.FormValue("lastname")
+		password := r.FormValue("password")
+		email := r.FormValue("email")
+
+		fmt.Println("Form data:", username, firstname, lastname, email)
+
+		functions.RegisterUserToDb(username, firstname, lastname, password, email)
+	}
+
 }
 
 func ErrorHandler(w http.ResponseWriter, s string, i int) {
