@@ -17,12 +17,13 @@ func InitDb() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+}
+func CloseDb() {
+	db.Close()
 }
 
 func RegisterUserToDb(username, firstname, lastname, password, email string) {
-
-	statement, err := db.Prepare("INSERT INTO projects(username, firstname, lastname, password, email) VALUES(?, ?, ?, ?, ?)")
+	statement, err := db.Prepare("INSERT INTO users(username, firstname, lastname, password, email) VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -35,7 +36,12 @@ func RegisterUserToDb(username, firstname, lastname, password, email string) {
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Received a request with method:", r.Method)
+
+	log.Println("Received a request with method:", r.Method)
+	if r.Method == "GET" {
+		http.ServeFile(w, r, "templates/register.html")
+		return
+	}
 	if r.Method == "POST" {
 		err := r.ParseForm()
 		if err != nil {

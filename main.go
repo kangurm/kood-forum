@@ -15,13 +15,12 @@ var tpl *template.Template
 
 func main() {
 	functions.InitDb()
-
-	//defer db.Close()
+	defer functions.CloseDb()
 	tpl, _ = template.ParseGlob("templates/*.html")
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
 	http.HandleFunc("/login", LoginHandler)
-	http.HandleFunc("/register", RegisterHandler)
+	http.HandleFunc("/register", functions.RegisterHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
