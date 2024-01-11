@@ -66,7 +66,23 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.ExecuteTemplate(w, "create-a-post.html", nil)
+	if r.Method == "GET" {
+		http.ServeFile(w, r, "templates/create-a-post.html")
+		return
+	}
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		if err != nil {
+			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
+		}
+
+		// var userID int
+		postTitle := r.FormValue("userPostTitle")
+		postBody := r.FormValue("userPostBodyText")
+
+		log.Printf("Post title: %s", postTitle)
+		log.Printf("Post body: %s", postBody)
+	}
 }
 
 func ErrorHandler(w http.ResponseWriter, s string, i int) {
