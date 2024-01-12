@@ -13,12 +13,14 @@ var db *sql.DB
 func InitDb() {
 	var err error
 	db, err = sql.Open("sqlite3", "db/database.db")
+	fmt.Println("database opened")
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 func CloseDb() {
 	db.Close()
+	fmt.Println("Database closed")
 }
 
 func RegisterUserToDb(username, firstname, lastname, password, email string) {
