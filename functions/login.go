@@ -13,3 +13,9 @@ func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
+func RequestUserLoginDataFromDb(email, password) {
+	var id int
+	var email string
+	var password string
+
+}

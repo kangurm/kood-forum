@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/tools/go/analysis/passes/nilfunc"
 )
 
 var tpl *template.Template
@@ -37,11 +38,8 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.ExecuteTemplate(w, "login.html", nil)
-}
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Received a request with method:", r.Method)
+	//log.Println("Received a request with method:", r.Method)
 	if r.Method == "GET" {
 		http.ServeFile(w, r, "templates/register.html")
 		return
@@ -70,6 +68,29 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Welcome, you are registered, please login in!")
 	}
 
+}
+
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.method == "GET" {
+		http.ServeFile(w, r, "templates/login.html")
+		return
+	}
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		if err != nil {
+			http.Error(w, "Error parsing the form(login)", http.StatusInternalServerError)
+			return
+		}
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+		functions.CheckPasswordHash(password,HashPassword)
+		if HashPassword true {
+		return true
+		}else {
+			return nil
+		}
+		functions.          (email,)
+	}
 }
 
 func ErrorHandler(w http.ResponseWriter, s string, i int) {
