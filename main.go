@@ -59,9 +59,15 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 		email := r.FormValue("email")
 
+		passwordHash, _ := functions.HashPassword(password)
+		/* match := functions.CheckPasswordHash(password, passwordHash)
+		fmt.Println(match) */
 		fmt.Println("Form data:", username, firstname, lastname, email)
 
-		functions.RegisterUserToDb(username, firstname, lastname, password, email)
+		functions.RegisterUserToDb(username, firstname, lastname, passwordHash, email)
+
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		fmt.Fprintln(w, "Welcome, you are registered, please login in!")
 	}
 
 }
