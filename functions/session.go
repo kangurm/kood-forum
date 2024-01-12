@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Returns sessionID, err
 func GenerateSessionID() (string, error) {
 
 	// Generate a random 16-byte session ID

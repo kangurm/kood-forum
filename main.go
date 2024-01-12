@@ -70,7 +70,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Received (/login) a request with method:", r.Method)
 	if r.Method == "GET" {
 		http.ServeFile(w, r, "templates/login.html")
 		return
@@ -94,9 +93,21 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		match := functions.CheckPasswordHash(password, user.Password)
 		if !match {
-			http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+			http.Redirect(w, r, "/login", http.StatusUnauthorized)
+		}
+
+		sessionID, err := functions.GenerateSessionID()
+		if err != nil {
+			ErrorHandler(w, "Error generating session ID", http.StatusInternalServerError)
 			return
 		}
+
+		functions.StoreCookiesInDb(sessionID, *user)
+
+		// Ei ole kindel kas see on oige tegu. -Marcus
+		functions.SetNewSession(w, sessionID, user.Email)
+
+		http.Redirect(w, r, "/", http.StatusAccepted)
 	}
 }
 
