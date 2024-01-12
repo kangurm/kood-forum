@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	_ "github.com/mattn/go-sqlite3"
-	"golang.org/x/tools/go/analysis/passes/nilfunc"
 )
 
 var tpl *template.Template
@@ -39,7 +38,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	//log.Println("Received a request with method:", r.Method)
+	log.Println("Received (/register) a request with method:", r.Method)
 	if r.Method == "GET" {
 		http.ServeFile(w, r, "templates/register.html")
 		return
@@ -71,7 +70,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.method == "GET" {
+	log.Println("Received (/login) a request with method:", r.Method)
+	if r.Method == "GET" {
 		http.ServeFile(w, r, "templates/login.html")
 		return
 	}
@@ -83,13 +83,20 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		email := r.FormValue("email")
 		password := r.FormValue("password")
-		functions.CheckPasswordHash(password,HashPassword)
-		if HashPassword true {
-		return true
-		}else {
-			return nil
+
+		user, err := functions.GetUserByEmail(email)
+		if err != nil {
+			log.Printf("Error retrieving user: %v\n", err)
+			http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+			return
+		} else {
+			log.Printf("Retrieved user data: %+v\n", user)
 		}
-		functions.          (email,)
+		match := functions.CheckPasswordHash(password, user.Password)
+		if !match {
+			http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+			return
+		}
 	}
 }
 
