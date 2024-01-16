@@ -89,25 +89,33 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
 			return
 		} else {
-			log.Printf("Retrieved user data: %+v\n", user)
+			// log.Printf("Retrieved user data: %+v\n", user)
 		}
 		match := functions.CheckPasswordHash(password, user.Password)
 		if !match {
+			fmt.Println("Wrong password!")
 			http.Redirect(w, r, "/login", http.StatusUnauthorized)
 		}
 
-		sessionID, err := functions.GenerateSessionID()
+		sessionID, err := functions.GenerateSessionID(user.Password)
 		if err != nil {
 			ErrorHandler(w, "Error generating session ID", http.StatusInternalServerError)
 			return
 		}
 
+		// cookieName, err := functions.GenerateCookieName(user.Email)
+		// if err != nil {
+		// 	fmt.Print(err)
+		// }
+
+		cookieName := "wtf"
+		fmt.Printf("cookie name: %s\ncookie value: %s\n", cookieName, sessionID)
+
 		functions.StoreSessionInDb(sessionID, *user)
 
 		// Ei ole kindel kas see on oige tegu. -Marcus
-		functions.SetNewSession(w, sessionID, user.Email)
-
-		http.Redirect(w, r, "/", http.StatusAccepted)
+		functions.NewCookie(w, cookieName, sessionID)
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 }
 
