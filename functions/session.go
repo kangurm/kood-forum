@@ -42,7 +42,7 @@ func GetSession(r *http.Request, key string) (string, error) {
 }
 
 // Associates user and sessionID, saves it to the database.
-func StoreCookiesInDb(sessionID string, userData User) error {
+func StoreSessionInDb(sessionID string, userData User) error {
 	_, err := db.Exec("INSERT INTO session (session_id, user_id, email) VALUES (?, ?, ?)",
 		sessionID, userData.Id, userData.Email)
 	return err

@@ -102,7 +102,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		functions.StoreCookiesInDb(sessionID, *user)
+		functions.StoreSessionInDb(sessionID, *user)
 
 		// Ei ole kindel kas see on oige tegu. -Marcus
 		functions.SetNewSession(w, sessionID, user.Email)
