@@ -108,12 +108,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		// 	fmt.Print(err)
 		// }
 
-		cookieName := "wtf"
+		cookieName := "wtf" //??vb peaks kasutama nime generaatorit??
 		fmt.Printf("cookie name: %s\ncookie value: %s\n", cookieName, sessionID)
 
 		functions.StoreSessionInDb(sessionID, *user)
 
-		// Ei ole kindel kas see on oige tegu. -Marcus
 		functions.NewCookie(w, cookieName, sessionID)
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
