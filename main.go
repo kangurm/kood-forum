@@ -36,11 +36,8 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.ExecuteTemplate(w, "login.html", nil)
-}
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Received a request with method:", r.Method)
+	log.Println("Received (/register) a request with method:", r.Method)
 	if r.Method == "GET" {
 		http.ServeFile(w, r, "templates/register.html")
 		return
@@ -58,11 +55,75 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 		email := r.FormValue("email")
 
+		exists, err := functions.UserExists(username, email)
+		if err != nil {
+			http.Error(w, "Error checking user existence", http.StatusInternalServerError)
+			return
+		}
+		if exists {
+			http.Error(w, "Username or Email already in use", http.StatusConflict)
+			return
+		}
+		passwordHash, _ := functions.HashPassword(password)
+		/* match := functions.CheckPasswordHash(password, passwordHash)
+		fmt.Println(match) */
 		fmt.Println("Form data:", username, firstname, lastname, email)
 
-		functions.RegisterUserToDb(username, firstname, lastname, password, email)
+		functions.RegisterUserToDb(username, firstname, lastname, passwordHash, email)
+
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		fmt.Fprintln(w, "Welcome, you are registered, please login in!")
 	}
 
+}
+
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		http.ServeFile(w, r, "templates/login.html")
+		return
+	}
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		if err != nil {
+			http.Error(w, "Error parsing the form(login)", http.StatusInternalServerError)
+			return
+		}
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+
+		user, err := functions.GetUserByEmail(email)
+		if err != nil {
+			log.Printf("Error retrieving user: %v\n", err)
+			http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+			return
+		} else {
+			// log.Printf("Retrieved user data: %+v\n", user)
+		}
+		match := functions.CheckPasswordHash(password, user.Password)
+		if !match {
+			fmt.Println("Wrong password!")
+			http.Redirect(w, r, "/login", http.StatusUnauthorized)
+		}
+
+		sessionID, err := functions.GenerateSessionID(user.Password)
+		if err != nil {
+			ErrorHandler(w, "Error generating session ID", http.StatusInternalServerError)
+			return
+		}
+
+		// cookieName, err := functions.GenerateCookieName(user.Email)
+		// if err != nil {
+		// 	fmt.Print(err)
+		// }
+
+		cookieName := "wtf" //??vb peaks kasutama nime generaatorit??
+		fmt.Printf("cookie name: %s\ncookie value: %s\n", cookieName, sessionID)
+
+		functions.StoreSessionInDb(sessionID, *user)
+
+		functions.NewCookie(w, cookieName, sessionID)
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	}
 }
 
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
