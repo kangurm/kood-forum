@@ -38,3 +38,11 @@ func RegisterUserToDb(username, firstname, lastname, password, email string) {
 	}
 	fmt.Println("Inserted data into database:", username, firstname, lastname, email)
 }
+func UserExists(username, email string) (bool, error) {
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ? OR email = ?)", username, email).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}

@@ -56,6 +56,15 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 		email := r.FormValue("email")
 
+		exists, err := functions.UserExists(username, email)
+		if err != nil {
+			http.Error(w, "Error checking user existence", http.StatusInternalServerError)
+			return
+		}
+		if exists {
+			http.Error(w, "Username or Email already in use", http.StatusConflict)
+			return
+		}
 		passwordHash, _ := functions.HashPassword(password)
 		/* match := functions.CheckPasswordHash(password, passwordHash)
 		fmt.Println(match) */
