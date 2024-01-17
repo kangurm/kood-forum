@@ -12,8 +12,6 @@ import (
 
 var tpl *template.Template
 
-//This is a huge focking comment
-
 func main() {
 	functions.InitDb()
 	defer functions.CloseDb()
@@ -22,6 +20,7 @@ func main() {
 	http.HandleFunc("/", IndexHandler)
 	http.HandleFunc("/login", LoginHandler)
 	http.HandleFunc("/register", RegisterHandler)
+	http.HandleFunc("/create-a-post", CreateAPostHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
@@ -64,6 +63,30 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		functions.RegisterUserToDb(username, firstname, lastname, password, email)
 	}
 
+}
+
+func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		// TODO: Check for cookie/if user is logged in
+		http.ServeFile(w, r, "templates/create-a-post.html")
+		return
+	}
+	if r.Method == "POST" {
+		// TODO: Double check for cookie/if user is logged in?!
+
+		err := r.ParseForm()
+		if err != nil {
+			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
+		}
+
+		postTitle := r.FormValue("userPostTitle")
+		postBody := r.FormValue("userPostBodyText")
+
+		// TODO: Find it out using a cookie
+		user_id := 0
+
+		functions.RegisterPostToDb(user_id, postTitle, postBody)
+	}
 }
 
 func ErrorHandler(w http.ResponseWriter, s string, i int) {
