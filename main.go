@@ -67,21 +67,25 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
+		// TODO: Check for cookie/if user is logged in
 		http.ServeFile(w, r, "templates/create-a-post.html")
 		return
 	}
 	if r.Method == "POST" {
+		// TODO: Double check for cookie/if user is logged in?!
+
 		err := r.ParseForm()
 		if err != nil {
 			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
 		}
 
-		// var userID int
 		postTitle := r.FormValue("userPostTitle")
 		postBody := r.FormValue("userPostBodyText")
 
-		log.Printf("Post title: %s", postTitle)
-		log.Printf("Post body: %s", postBody)
+		// TODO: Find it out using a cookie
+		user_id := 0
+
+		functions.RegisterPostToDb(user_id, postTitle, postBody)
 	}
 }
 

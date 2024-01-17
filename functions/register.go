@@ -37,27 +37,18 @@ func RegisterUserToDb(username, firstname, lastname, password, email string) {
 	fmt.Println("Inserted data into database:", username, firstname, lastname, email)
 }
 
-func InsertUserToDb(username, firstname, lastname, password, email string) {
+func RegisterPostToDb(user_id int, postTitle, postBody string) {
 
-	action := "INSERT INTO"
-	table := "users"
-	dataLayout := "(username, firstname, lastname, password, email) VALUES(?, ?, ?, ?, ?)"
-
-
-	statement, err := db.Prepare(action+table+dataLayout)
+	statement, err := db.Prepare("INSERT INTO post(user_id, postTitle, postBody) VALUES(?, ?, ?)")
 	if err != nil {
 		log.Printf("Error preparing data: %v", err)
 		return
 	}
 	defer statement.Close()
-	_, err = statement.Exec(username, firstname, lastname, password, email)
+	_, err = statement.Exec(user_id, postTitle, postBody)
 	if err != nil {
 		log.Printf("Error executing data: %v", err)
 		return
 	}
-	fmt.Println("Inserted data into database:", username, firstname, lastname, email)
-}
-
-func RegisterPostToDb(user_id, postTitle, postBody string) {
-
+	fmt.Println("Inserted data into database:", user_id, postTitle, postBody)
 }
