@@ -166,6 +166,7 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 		user_id := 0
 
 		functions.RegisterPostToDb(user_id, postTitle, postBody)
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 }
 
