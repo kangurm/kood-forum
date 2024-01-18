@@ -1,12 +1,13 @@
 package functions
 
 import (
-	"net/http"
-
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 )
 
 // Returns sessionID, err
+
 func GenerateSessionID(password string) (string, error) {
 
 	// Generate a random 16-byte session ID
@@ -22,7 +23,7 @@ func GenerateSessionID(password string) (string, error) {
 	return sessionIDstring, nil
 }
 
-/* func GenerateCookieName(email string) (string, error) {
+func GenerateCookieName(email string) (string, error) {
 
 	emailBytes := []byte(email)
 	nameBytes, err := bcrypt.GenerateFromPassword(emailBytes, bcrypt.DefaultCost)
@@ -33,7 +34,7 @@ func GenerateSessionID(password string) (string, error) {
 	name := string(nameBytes)
 	fmt.Printf("Cookie name is: %s\n", name)
 	return name, err
-} */
+}
 
 func NewCookie(w http.ResponseWriter, key string, value string) {
 	cookie := http.Cookie{
