@@ -81,7 +81,12 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		http.ServeFile(w, r, "templates/login.html")
-		return
+		_, err := functions.AuthenticateUser(w, r)
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+			return
+		}
+		// http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 	if r.Method == "POST" {
 		err := r.ParseForm()
@@ -129,20 +134,23 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method == "POST" {
-		err := r.ParseForm()
-		if err != nil {
-			http.Error(w, "Error parsing the form(logout)", http.StatusInternalServerError)
-			return
-		}
-		http.SetCookie(w, &http.Cookie{
-			Name:   "sessionID",
-			Value:  "",
-			Path:   "/",
-			MaxAge: -1, //MaxAge <0 means delete cookie now
-		})
-		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	user_id, err := functions.AuthenticateUser(w, r)
+	if err != nil {
+		fmt.Println(err)
+		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 	}
+	err = functions.DeleteSessionFromDb(user_id)
+	if err != nil {
+		fmt.Println(err)
+		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+	}
+	http.SetCookie(w, &http.Cookie{
+		Name:   "brownie",
+		Path:   "/",
+		MaxAge: -1, //MaxAge <0 means delete cookie now
+	})
+	fmt.Printf("Deleted %v's session", user_id)
+	http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 }
 
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {

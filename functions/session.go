@@ -2,8 +2,9 @@ package functions
 
 import (
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Returns sessionID, err
@@ -58,4 +59,54 @@ func StoreSessionInDb(sessionID string, userData User) error {
 	_, err := db.Exec("INSERT INTO session (session_id, user_id, email) VALUES (?, ?, ?)",
 		sessionID, userData.Id, userData.Email)
 	return err
+}
+
+func GetUserIdFromSession(sessionID string) (int, error) {
+	rows, err := db.Query("SELECT user_id FROM session WHERE session_id = ?", sessionID)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	var user_id int
+
+	for rows.Next() {
+		if err := rows.Scan(&user_id); err != nil {
+			return 0, err
+		}
+	}
+
+	return user_id, nil
+}
+
+func DeleteSessionFromDb(user_id int) error {
+
+	statement, err := db.Prepare("DELETE FROM session WHERE user_id = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(user_id)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Deleted session for user with user_id: %v", user_id)
+	return nil
+}
+
+func AuthenticateUser(w http.ResponseWriter, r *http.Request) (userid int, err error) {
+	cookie, err := r.Cookie("brownie")
+	if err != nil {
+		fmt.Println("Cookie not found from client:", err)
+		return 0, err
+	}
+	fmt.Println(cookie.Value)
+	user_id, err := GetUserIdFromSession(cookie.Value)
+	if user_id == 0 || err != nil {
+		fmt.Println("Cookie not found from database:", err, user_id)
+		return 0, err
+	}
+	fmt.Println("user_id of user that is logged in: ", user_id)
+	return user_id, nil
 }
