@@ -20,6 +20,7 @@ func main() {
 	http.HandleFunc("/", IndexHandler)
 	http.HandleFunc("/login", LoginHandler)
 	http.HandleFunc("/register", RegisterHandler)
+	http.HandleFunc("/logout", LogoutHandler)
 	http.HandleFunc("/create-a-post", CreateAPostHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -116,7 +117,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		// 	fmt.Print(err)
 		// }
 
-		cookieName := "wtf" //??vb peaks kasutama nime generaatorit??
+		cookieName := "brownie" //??vb peaks kasutama nime generaatorit??
 		fmt.Printf("cookie name: %s\ncookie value: %s\n", cookieName, sessionID)
 
 		functions.StoreSessionInDb(sessionID, *user)
