@@ -126,6 +126,24 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		if err != nil {
+			http.Error(w, "Error parsing the form(logout)", http.StatusInternalServerError)
+			return
+		}
+		http.SetCookie(w, &http.Cookie{
+			Name:   "sessionID",
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1, //MaxAge <0 means delete cookie now
+		})
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	}
+}
+
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// TODO: Check for cookie/if user is logged in
