@@ -12,6 +12,10 @@ import (
 
 var tpl *template.Template
 
+type TemplateData struct {
+	Username string
+}
+
 func main() {
 	functions.InitDb()
 	defer functions.CloseDb()
@@ -45,7 +49,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Print(username)
 		}
 		w.Header().Set("Content-Type", "text/html")
-		tpl.ExecuteTemplate(w, "index.html", username)
+		tpl.ExecuteTemplate(w, "index.html", TemplateData{Username: username})
 	}
 }
 

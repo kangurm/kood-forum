@@ -33,26 +33,6 @@ func GetUserByEmail(email string) (*User, error) {
 
 }
 
-/*
-	 func GetUserByID(userID int) (string, error) {
-		fmt.Println("olen suur aff", userID)
-		rows, err := db.Query("SELECT username FROM user WHERE id= ?", userID)
-		if err != nil {
-			return "", err
-		}
-		defer rows.Close()
-
-		var username string
-
-		for rows.Next() {
-			if err := rows.Scan(&username); err != nil {
-				return "", err
-			}
-		}
-
-		return username, nil
-	}
-*/
 func GetUserByID(userID int) (string, error) {
 	fmt.Println("GetUserByID called with userID:", userID)
 
