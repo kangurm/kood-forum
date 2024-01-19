@@ -307,3 +307,7 @@ hr {
     font-size: 2rem;
 }
 
+.noEffectArticle {
+    text-decoration: none;
+    color: inherit;
+}

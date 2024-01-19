@@ -3,7 +3,7 @@ package functions
 import "fmt"
 
 type Post struct {
-	id      string
+	Post_id string
 	User_id string
 	Title   string
 	Text    string
@@ -40,7 +40,7 @@ func GetPostsFromDb() ([]Post, error) {
 
 	for rows.Next() {
 		var post Post
-		if err := rows.Scan(&post.id, &post.User_id, &post.Title, &post.Text, &post.Created); err != nil {
+		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created); err != nil {
 			return nil, err
 		}
 		posts = append(posts, post)
@@ -49,7 +49,7 @@ func GetPostsFromDb() ([]Post, error) {
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	
+
 	return posts, nil
 }
 
@@ -63,7 +63,7 @@ func GetPostById(postID int) (Post, error) {
 	var post Post
 
 	for rows.Next() {
-		if err := rows.Scan(&post.id, &post.User_id, &post.Title, &post.Text, &post.Created); err != nil {
+		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created); err != nil {
 			return Post{}, err
 		}
 	}

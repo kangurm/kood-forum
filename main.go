@@ -102,10 +102,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/login.html")
 		_, err := functions.AuthenticateUser(w, r)
 		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+			fmt.Print(err)
 			return
 		}
-		// http.Redirect(w, r, "/", http.StatusMovedPermanently)
+		//TODO: Redirect doesnt work when user is logged and tries to log in again.
 	}
 	if r.Method == "POST" {
 		err := r.ParseForm()
@@ -121,9 +121,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error retrieving user: %v\n", err)
 			http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
 			return
-		} else {
-			// log.Printf("Retrieved user data: %+v\n", user)
 		}
+
 		match := functions.CheckPasswordHash(password, user.Password)
 		if !match {
 			fmt.Println("Wrong password!")
@@ -227,10 +226,10 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Error converting id from string to int")
 	}
-	post, err := functions.GetPostById(post_id)
+	currentPost, err := functions.GetPostById(post_id)
 	if err != nil {
 		fmt.Println("Error getting post info from database")
 	}
 
-	tpl.ExecuteTemplate(w, "templates/post.html", post)
+	tpl.ExecuteTemplate(w, "post.html", currentPost)
 }
