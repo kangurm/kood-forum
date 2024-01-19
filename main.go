@@ -33,8 +33,20 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
 		return
 	}
-	w.Header().Set("Content-Type", "text/html")
-	tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
+	logged, err := functions.AuthenticateUser(w, r)
+	if err != nil {
+		w.Header().Set("Content-Type", "text/html")
+		tpl.ExecuteTemplate(w, "index.html", nil)
+		fmt.Println("user is not logged in")
+	} else {
+		username, err := functions.GetUserByID(logged)
+		if err != nil {
+			http.Error(w, "cant find username from database", http.StatusInternalServerError)
+			fmt.Print(username)
+		}
+		w.Header().Set("Content-Type", "text/html")
+		tpl.ExecuteTemplate(w, "index.html", username)
+	}
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
