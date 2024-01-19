@@ -4,21 +4,16 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel='stylesheet' href='/static/styles/style.css'>
-        <title>Create a Post!</title>
+        <title></title>
     </head>
     <body>
         <div class="centerContainer">
-            <form action class="loginForm" method="post">
-                <h3 class="h3title">Create a post</h3>
+            <div class="loginForm">
                 <hr class="solidHR">
-                <textarea type="text" name="userPostTitle" class="inputBox"
-                    maxlength="40" id="userPostTitle"
-                    placeholder="Title" contenteditable></textarea>
-                <textarea type="body" name="userPostBodyText" class="inputBox"
-                    id="createPostBodyText" placeholder="Text (Required)"
-                    maxlength="1500"></textarea>
-                <input type="submit" value="Create!" id="submit">
-            </form>
+                <h3 class="postTitle"></h3>
+                <textarea readonly class="postBar"
+                    style="resize: none;"></textarea>
+            </div>
         </div>
     </body>
     <script>

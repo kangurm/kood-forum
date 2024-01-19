@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -18,6 +20,7 @@ func main() {
 	tpl, _ = template.ParseGlob("templates/*.html")
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
+	http.HandleFunc("/post/", PostHandler)
 	http.HandleFunc("/login", LoginHandler)
 	http.HandleFunc("/register", RegisterHandler)
 	http.HandleFunc("/logout", LogoutHandler)
@@ -33,8 +36,24 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
 		return
 	}
+
+	posts, err := functions.GetPostsFromDb()
+	if err != nil || posts == nil {
+		w.Header().Set("Content-Type", "text/html")
+		tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
+		return
+	}
+
+	data := struct {
+		Posts []functions.Post
+	}{
+		Posts: posts,
+	}
+
+	fmt.Print(data)
+
 	w.Header().Set("Content-Type", "text/html")
-	tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
+	tpl.ExecuteTemplate(w, "index.html", data) //replace nil with data
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -167,11 +186,16 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
 		}
 
+		// TODO: Add categories to html and use them here.
+
 		postTitle := r.FormValue("userPostTitle")
 		postBody := r.FormValue("userPostBodyText")
 
-		// TODO: Find it out using a cookie
-		user_id := 0
+		user_id, err := functions.AuthenticateUser(w, r)
+		if err != nil || user_id == 0 {
+			fmt.Println("User is not logged in. Redirecting to login.")
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		}
 
 		functions.RegisterPostToDb(user_id, postTitle, postBody)
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
@@ -190,4 +214,23 @@ func ErrorHandler(w http.ResponseWriter, s string, i int) {
 
 	w.WriteHeader(i)
 	tpl.ExecuteTemplate(w, "error.html", data)
+}
+
+func PostHandler(w http.ResponseWriter, r *http.Request) {
+	if !strings.HasPrefix(r.URL.Path, "/post/") {
+		http.NotFound(w, r)
+		return
+	}
+
+	postID := strings.TrimPrefix(r.URL.Path, "/post/")
+	post_id, err := strconv.Atoi(postID)
+	if err != nil {
+		fmt.Println("Error converting id from string to int")
+	}
+	post, err := functions.GetPostById(post_id)
+	if err != nil {
+		fmt.Println("Error getting post info from database")
+	}
+
+	tpl.ExecuteTemplate(w, "templates/post.html", post)
 }
