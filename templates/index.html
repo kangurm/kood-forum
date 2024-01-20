@@ -21,10 +21,13 @@
                     <input class="searchBar" type="search" placeholder="Search...">
                 </div>
                 <div class="end">
+                    {{if.IsLoggedIn}}
                     <a href="/create-a-post" class="margin">New Post</a>
-                    <a href="/login">Login</a>
                     <a href="/logout">Logout</a>
-                    <div id="user-info">{{.Username}}</div>
+                    <h3 id="user-info">{{.Username}} have logged in</h3>
+                    {{else}}
+                    <a href="/login">Login</a>
+                    {{end}}
                 </div>
             </nav>
         </header>

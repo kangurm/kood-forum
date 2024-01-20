@@ -13,7 +13,8 @@ import (
 var tpl *template.Template
 
 type TemplateData struct {
-	Username string
+	Username   string
+	IsLoggedIn bool
 }
 
 func main() {
@@ -40,7 +41,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	logged, err := functions.AuthenticateUser(w, r)
 	if err != nil {
 		w.Header().Set("Content-Type", "text/html")
-		tpl.ExecuteTemplate(w, "index.html", nil)
+		tpl.ExecuteTemplate(w, "index.html", TemplateData{IsLoggedIn: false})
 		fmt.Println("user is not logged in")
 	} else {
 		username, err := functions.GetUserByID(logged)
@@ -49,7 +50,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Print(username)
 		}
 		w.Header().Set("Content-Type", "text/html")
-		tpl.ExecuteTemplate(w, "index.html", TemplateData{Username: username})
+		tpl.ExecuteTemplate(w, "index.html", TemplateData{Username: username, IsLoggedIn: true})
 	}
 }
 
