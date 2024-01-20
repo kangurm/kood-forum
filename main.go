@@ -12,6 +12,11 @@ import (
 
 var tpl *template.Template
 
+type TemplateData struct {
+	Username   string
+	IsLoggedIn bool
+}
+
 func main() {
 	functions.InitDb()
 	defer functions.CloseDb()
@@ -20,6 +25,7 @@ func main() {
 	http.HandleFunc("/", IndexHandler)
 	http.HandleFunc("/login", LoginHandler)
 	http.HandleFunc("/register", RegisterHandler)
+	http.HandleFunc("/logout", LogoutHandler)
 	http.HandleFunc("/create-a-post", CreateAPostHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -32,8 +38,20 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
 		return
 	}
-	w.Header().Set("Content-Type", "text/html")
-	tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
+	logged, err := functions.AuthenticateUser(w, r)
+	if err != nil {
+		w.Header().Set("Content-Type", "text/html")
+		tpl.ExecuteTemplate(w, "index.html", TemplateData{IsLoggedIn: false})
+		fmt.Println("user is not logged in")
+	} else {
+		username, err := functions.GetUserByID(logged)
+		if err != nil {
+			http.Error(w, "cant find username from database", http.StatusInternalServerError)
+			fmt.Print(username)
+		}
+		w.Header().Set("Content-Type", "text/html")
+		tpl.ExecuteTemplate(w, "index.html", TemplateData{Username: username, IsLoggedIn: true})
+	}
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +98,12 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		http.ServeFile(w, r, "templates/login.html")
-		return
+		_, err := functions.AuthenticateUser(w, r)
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+			return
+		}
+		// http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 	if r.Method == "POST" {
 		err := r.ParseForm()
@@ -116,7 +139,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		// 	fmt.Print(err)
 		// }
 
-		cookieName := "wtf" //??vb peaks kasutama nime generaatorit??
+		cookieName := "brownie" //??vb peaks kasutama nime generaatorit??
 		fmt.Printf("cookie name: %s\ncookie value: %s\n", cookieName, sessionID)
 
 		functions.StoreSessionInDb(sessionID, *user)
@@ -124,6 +147,27 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		functions.NewCookie(w, cookieName, sessionID)
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
+}
+
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+
+	user_id, err := functions.AuthenticateUser(w, r)
+	if err != nil {
+		fmt.Println(err)
+		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+	}
+	err = functions.DeleteSessionFromDb(user_id)
+	if err != nil {
+		fmt.Println(err)
+		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+	}
+	http.SetCookie(w, &http.Cookie{
+		Name:   "brownie",
+		Path:   "/",
+		MaxAge: -1, //MaxAge <0 means delete cookie now
+	})
+	fmt.Printf("Deleted %v's session", user_id)
+	http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 }
 
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -147,6 +191,7 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 		user_id := 0
 
 		functions.RegisterPostToDb(user_id, postTitle, postBody)
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 }
 

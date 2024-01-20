@@ -25,7 +25,7 @@ func CloseDb() {
 
 func RegisterUserToDb(username, firstname, lastname, password, email string) {
 
-	statement, err := db.Prepare("INSERT INTO users(username, firstname, lastname, password, email) VALUES(?, ?, ?, ?, ?)")
+	statement, err := db.Prepare("INSERT INTO user(username, firstname, lastname, password, email) VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Printf("Error preparing data: %v", err)
 		return
@@ -40,7 +40,7 @@ func RegisterUserToDb(username, firstname, lastname, password, email string) {
 }
 func UserExists(username, email string) (bool, error) {
 	var exists bool
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ? OR email = ?)", username, email).Scan(&exists)
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM user WHERE username = ? OR email = ?)", username, email).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
