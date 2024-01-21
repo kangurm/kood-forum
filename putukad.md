@@ -1,1 +1,0 @@
-Search bar liigub keskelt ara kui headerile asju juurde lisame.
