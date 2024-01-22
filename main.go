@@ -14,6 +14,11 @@ import (
 
 var tpl *template.Template
 
+type LoggedUser struct {
+	Username   string
+	IsLoggedIn bool
+}
+
 func main() {
 	functions.InitDb()
 	defer functions.CloseDb()
@@ -37,6 +42,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
 		return
 	}
+	
 
 	posts, err := functions.GetPostsFromDb()
 	if err != nil || posts == nil {
@@ -45,10 +51,28 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var username string
+	logUser := LoggedUser{Username: username, IsLoggedIn: true}
+
+	user_id, err := functions.AuthenticateUser(w, r)
+	if err != nil {
+		logUser.IsLoggedIn = false
+	} else {
+		username, err := functions.GetUserByID(user_id)
+		if err != nil {
+			http.Error(w, "cant find username from database", http.StatusInternalServerError)
+			fmt.Print(username)
+		}
+		logUser.Username = username
+		logUser.IsLoggedIn = true
+	}
+
 	data := struct {
 		Posts []functions.Post
+		LoggedUser LoggedUser 
 	}{
 		Posts: posts,
+		LoggedUser: logUser,
 	}
 
 	w.Header().Set("Content-Type", "text/html")

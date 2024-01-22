@@ -22,9 +22,13 @@
                         placeholder="Search...">
                 </div>
                 <div class="end">
+                    {{if.LoggedUser.IsLoggedIn}}
                     <a href="/create-a-post" class="margin">New Post</a>
-                    <a href="/login">Login</a>
                     <a href="/logout">Logout</a>
+                    <h3 id="user-info">{{.LoggedUser.Username}} have logged in</h3>
+                    {{else}}
+                    <a href="/login">Login</a>
+                    {{end}}
                 </div>
             </nav>
         </header>

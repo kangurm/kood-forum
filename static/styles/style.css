@@ -80,6 +80,20 @@ footer {
     padding-right: 1em;
     justify-items: flex-end;
 }
+.end a,
+.end #user-info {
+    color: greenyellow; /* Match the color of the links */
+    text-decoration: none; /* Remove underline from links */
+    margin-right: 10px; /* Consistent spacing */
+    font-size: 16px; /* Match the font size of other elements */
+    line-height: 2.5rem; /* Align vertically within the navbar */
+    vertical-align: middle; /* Align text vertically */
+}
+
+.end #user-info {
+    display: inline; /* Inline display to align with links */
+    margin: 0; /* Reset margin for consistent alignment */
+}
 
 
 .BODY {
