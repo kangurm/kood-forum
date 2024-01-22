@@ -11,11 +11,11 @@
             <form action="http://localhost:8080/login" class="loginForm" method="post">
                 <h2>LOG IN</h2>
                 <hr class="solidHR">
+                {{if .WelcomeMessage}}
                 <div class="welcome-message">
-                    {{if .WelcomeMessage}}
                     {{.WelcomeMessage}}
-                    {{end}}
                 </div>
+                {{end}}
                 <input type="email" name="email" class="inputBox"
                     placeholder="Enter Email or Username">
                 <input type="password" name="password" class="inputBox"
