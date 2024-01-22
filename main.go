@@ -13,8 +13,11 @@ import (
 var tpl *template.Template
 
 type TemplateData struct {
-	Username   string
-	IsLoggedIn bool
+	Username       string
+	IsLoggedIn     bool
+	ErrorMessage   string
+	WelcomeMessage string
+	UserExists     string
 }
 
 func main() {
@@ -79,7 +82,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if exists {
-			http.Error(w, "Username or Email already in use", http.StatusConflict)
+			w.Header().Set("Content-Type", "text/html")
+			tpl.ExecuteTemplate(w, "register.html", TemplateData{UserExists: "Username or Email already in use"})
 			return
 		}
 		passwordHash, _ := functions.HashPassword(password)
@@ -88,9 +92,10 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Form data:", username, firstname, lastname, email)
 
 		functions.RegisterUserToDb(username, firstname, lastname, passwordHash, email)
+		w.Header().Set("Content-Type", "text/html")
+		tpl.ExecuteTemplate(w, "login.html", TemplateData{WelcomeMessage: "Welcome, you are registered, please login in!"})
 
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		fmt.Fprintln(w, "Welcome, you are registered, please login in!")
+		return
 	}
 
 }
@@ -117,15 +122,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		user, err := functions.GetUserByEmail(email)
 		if err != nil {
 			log.Printf("Error retrieving user: %v\n", err)
-			http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+			tpl.ExecuteTemplate(w, "login.html", TemplateData{ErrorMessage: "Invalid email or user not found"})
 			return
-		} else {
-			// log.Printf("Retrieved user data: %+v\n", user)
 		}
 		match := functions.CheckPasswordHash(password, user.Password)
 		if !match {
-			fmt.Println("Wrong password!")
-			http.Redirect(w, r, "/login", http.StatusUnauthorized)
+			log.Printf("Incorrect password!")
+			tpl.ExecuteTemplate(w, "login.html", TemplateData{ErrorMessage: "Incorrect password"})
+			return
 		}
 
 		sessionID, err := functions.GenerateSessionID(user.Password)

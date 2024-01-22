@@ -11,17 +11,19 @@
             <form action="http://localhost:8080/login" class="loginForm" method="post">
                 <h2>LOG IN</h2>
                 <hr class="solidHR">
+                {{if .WelcomeMessage}}
+                <div class="welcome-message">{{.WelcomeMessage}}</div>
+                {{end}}
                 <input type="email" name="email" class="inputBox"
                     placeholder="Enter Email or Username">
                 <input type="password" name="password" class="inputBox"
                     placeholder="Enter Password">
+                    {{if .ErrorMessage}}
+                    <div class="error-message">{{.ErrorMessage}}</div>
+                {{end}}
                 <input type="submit" value="LOG IN" id="submit">
                 <a href="/register">Not a User? Register now!</a>
             </form>
-
-         <!--    {{if .}}
-                {{.}}
-            {{end}} -->
         </div>
     </body>
 </html>
