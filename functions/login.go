@@ -21,7 +21,7 @@ func CheckPasswordHash(password, hash string) bool {
 }
 func GetUserByEmail(email string) (*User, error) {
 	var user User
-	err := db.QueryRow("SELECT id, email, password FROM users WHERE email = ?", email).Scan(&user.Id, &user.Email, &user.Password)
+	err := db.QueryRow("SELECT id, email, password FROM user WHERE email = ?", email).Scan(&user.Id, &user.Email, &user.Password)
 	// fmt.Print(&user)
 	if err != nil {
 		return nil, err

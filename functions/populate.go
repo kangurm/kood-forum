@@ -54,14 +54,13 @@ func GetPostsFromDb() ([]Post, error) {
 }
 
 func GetPostById(postID int) (Post, error) {
-	rows, err := db.Query("SELECT user_id, postTitle, postBody, created FROM post WHERE id = ?", postID)
+	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created FROM post WHERE id = ?", postID)
 	if err != nil {
 		return Post{}, err
 	}
 	defer rows.Close()
 
 	var post Post
-
 	for rows.Next() {
 		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created); err != nil {
 			return Post{}, err
@@ -71,6 +70,6 @@ func GetPostById(postID int) (Post, error) {
 	if err := rows.Err(); err != nil {
 		return Post{}, err
 	}
-	fmt.Println("Retrieved post info: ", post)
+
 	return post, nil
 }

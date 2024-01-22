@@ -51,8 +51,6 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		Posts: posts,
 	}
 
-	fmt.Print(data)
-
 	w.Header().Set("Content-Type", "text/html")
 	tpl.ExecuteTemplate(w, "index.html", data) //replace nil with data
 }
@@ -100,13 +98,15 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		http.ServeFile(w, r, "templates/login.html")
-		_, err := functions.AuthenticateUser(w, r)
-		if err != nil {
-			fmt.Print(err)
+		user_id, err := functions.AuthenticateUser(w, r)
+		if err != nil || user_id == 0 {
+			http.ServeFile(w, r, "templates/login.html")
+			fmt.Println("User is not logged in. Redirecting to login.")
 			return
 		}
-		//TODO: Redirect doesnt work when user is logged and tries to log in again.
+		fmt.Println("User is already logged in, redirecting to index.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
 	}
 	if r.Method == "POST" {
 		err := r.ParseForm()
@@ -130,16 +130,18 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login", http.StatusUnauthorized)
 		}
 
+		err = functions.DeleteSessionFromDb(user.Id)
+		if err != nil {
+			fmt.Println("Failed to delete session from database after user logged in")
+		}
+
+		functions.RemoveCookieFromClient(w)
+
 		sessionID, err := functions.GenerateSessionID(user.Password)
 		if err != nil {
 			ErrorHandler(w, "Error generating session ID", http.StatusInternalServerError)
 			return
 		}
-
-		// cookieName, err := functions.GenerateCookieName(user.Email)
-		// if err != nil {
-		// 	fmt.Print(err)
-		// }
 
 		cookieName := "brownie" //??vb peaks kasutama nime generaatorit??
 		fmt.Printf("cookie name: %s\ncookie value: %s\n", cookieName, sessionID)
@@ -154,32 +156,34 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	user_id, err := functions.AuthenticateUser(w, r)
-	if err != nil {
+	if err != nil || user_id == 0 {
 		fmt.Println(err)
+		fmt.Println("aaa")
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 	}
+
 	err = functions.DeleteSessionFromDb(user_id)
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println("eee")
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 	}
-	http.SetCookie(w, &http.Cookie{
-		Name:   "brownie",
-		Path:   "/",
-		MaxAge: -1, //MaxAge <0 means delete cookie now
-	})
+	functions.RemoveCookieFromClient(w)
 	fmt.Printf("Deleted %v's session", user_id)
 	http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 }
 
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		// TODO: Check for cookie/if user is logged in
+		user_id, err := functions.AuthenticateUser(w, r)
+		if err != nil || user_id == 0 {
+			fmt.Println("User is not logged in. Redirecting to login.")
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		}
 		http.ServeFile(w, r, "templates/create-a-post.html")
 		return
 	}
 	if r.Method == "POST" {
-		// TODO: Double check for cookie/if user is logged in?!
 
 		err := r.ParseForm()
 		if err != nil {
@@ -232,5 +236,11 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error getting post info from database")
 	}
 
-	tpl.ExecuteTemplate(w, "post.html", currentPost)
+	data := struct {
+		Post functions.Post
+	}{
+		Post: currentPost,
+	}
+
+	tpl.ExecuteTemplate(w, "post.html", data)
 }
