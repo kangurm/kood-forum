@@ -51,7 +51,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	posts, err := functions.GetPostsFromDb()
-	if err != nil || posts == nil {
+	if err != nil {
 		w.Header().Set("Content-Type", "text/html")
 		tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
 		return
@@ -135,8 +135,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		user_id, err := functions.AuthenticateUser(w, r)
 		if err != nil || user_id == 0 {
-			http.ServeFile(w, r, "templates/login.html")
-			fmt.Println("User is not logged in. Redirecting to login.")
+			tpl.ExecuteTemplate(w, "login.html", nil)
 			return
 		}
 		fmt.Println("User is already logged in, redirecting to index.")
@@ -155,14 +154,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		user, err := functions.GetUserByEmail(email)
 		if err != nil {
 			log.Printf("Error retrieving user: %v\n", err)
-			tpl.ExecuteTemplate(w, "login.html", LoggedUser{ErrorMessage: "Invalid email or user not found"})
+			tpl.ExecuteTemplate(w, "login.html", LoggedUser{ErrorMessage: "Invalid email or password"})
 			return
 		}
 
 		match := functions.CheckPasswordHash(password, user.Password)
 		if !match {
 			fmt.Println("Wrong password!")
-			http.Redirect(w, r, "/login", http.StatusUnauthorized)
+			tpl.ExecuteTemplate(w, "login.html", LoggedUser{ErrorMessage: "Invalid email or password"})
 		}
 
 		err = functions.DeleteSessionFromDb(user.Id)
