@@ -21,9 +21,13 @@ type TemplateData struct {
 }
 
 func main() {
+	var err error
 	functions.InitDb()
 	defer functions.CloseDb()
-	tpl, _ = template.ParseGlob("templates/*.html")
+	tpl, err = template.ParseGlob("templates/*.html")
+	if err != nil {
+		log.Fatalf("Error parsing remplates: %v", err)
+	}
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
 	http.HandleFunc("/login", LoginHandler)
@@ -44,8 +48,10 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	logged, err := functions.AuthenticateUser(w, r)
 	if err != nil {
 		w.Header().Set("Content-Type", "text/html")
-		tpl.ExecuteTemplate(w, "index.html", TemplateData{IsLoggedIn: false})
-		fmt.Println("user is not logged in")
+		err = tpl.ExecuteTemplate(w, "index.html", TemplateData{IsLoggedIn: false})
+		if err != nil {
+			fmt.Println("user is not logged in")
+		}
 	} else {
 		username, err := functions.GetUserByID(logged)
 		if err != nil {
@@ -54,13 +60,17 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Content-Type", "text/html")
 		tpl.ExecuteTemplate(w, "index.html", TemplateData{Username: username, IsLoggedIn: true})
+		return
 	}
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received (/register) a request with method:", r.Method)
 	if r.Method == "GET" {
-		http.ServeFile(w, r, "templates/register.html")
+		err := tpl.ExecuteTemplate(w, "register.html", nil)
+		if err != nil {
+			log.Printf("Error executing template: %v", err)
+		}
 		return
 	}
 	if r.Method == "POST" {
@@ -102,14 +112,19 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		http.ServeFile(w, r, "templates/login.html")
-		_, err := functions.AuthenticateUser(w, r)
+		err := tpl.ExecuteTemplate(w, "login.html", nil)
 		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
-			return
+			log.Printf("Error executing template: %v", err)
 		}
-		// http.Redirect(w, r, "/", http.StatusMovedPermanently)
+		return
 	}
+	_, err := functions.AuthenticateUser(w, r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+		return
+	}
+	// http.Redirect(w, r, "/", http.StatusMovedPermanently)
+
 	if r.Method == "POST" {
 		err := r.ParseForm()
 		if err != nil {
