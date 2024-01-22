@@ -91,7 +91,7 @@ func DeleteSessionFromDb(user_id int) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Deleted session for user with user_id: %v", user_id)
+	fmt.Printf("Deleted session for user with user_id: %v\n", user_id)
 	return nil
 }
 
@@ -101,12 +101,23 @@ func AuthenticateUser(w http.ResponseWriter, r *http.Request) (userid int, err e
 		fmt.Println("Cookie not found from client:", err)
 		return 0, err
 	}
-	fmt.Println(cookie.Value)
+	
 	user_id, err := GetUserIdFromSession(cookie.Value)
 	if user_id == 0 || err != nil {
 		fmt.Println("Cookie not found from database:", err, user_id)
+		RemoveCookieFromClient(w)
 		return 0, err
 	}
 	fmt.Println("user_id of user that is logged in: ", user_id)
 	return user_id, nil
+}
+
+
+
+func RemoveCookieFromClient(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:   "brownie",
+		Path:   "/",
+		MaxAge: -1, //MaxAge <0 means delete cookie now
+	})
 }
