@@ -18,13 +18,14 @@
                     <a id="homeArticle" href="/">Home</a>
                 </div>
                 <div class="middle">
-                    <input class="searchBar" type="search" placeholder="Search...">
+                    <input class="searchBar" type="search"
+                        placeholder="Search...">
                 </div>
                 <div class="end">
-                    {{if.IsLoggedIn}}
+                    {{if.LoggedUser.IsLoggedIn}}
                     <a href="/create-a-post" class="margin">New Post</a>
                     <a href="/logout">Logout</a>
-                    <h3 id="user-info">{{.Username}} have logged in</h3>
+                    <h3 id="user-info">{{.LoggedUser.Username}} have logged in</h3>
                     {{else}}
                     <a href="/login">Login</a>
                     {{end}}
@@ -54,31 +55,17 @@
                     <button id="newButton" class="sortButtons">New</button>
                 </div>
                 <div class="contentMenu">
-                    <div class="postBar">
-                        <div class="likeDiv">
-                            <span class="postLikes">10</span>
-                            <span class="postDislikes">2</span>
+                    {{range .Posts}}
+                    <a class="noEffectArticle" href="/post/{{.Post_id}}">
+                        <div class="postBar">
+                            <div class="likeDiv">
+                                <span class="postLikes">10</span>
+                                <span class="postDislikes">2</span>
+                            </div>
+                            <h2 class="postTitle">{{.Title}}</h2>
                         </div>
-                        <h2 class="postTitle">Hello this is my first post!</h2>
-                    </div>
-                    <div class="postBar">
-                        <div class="likeDiv">
-                            <span class="postLikes">1</span>
-                            <span class="postDislikes">10</span>
-                        </div>
-                        <h2 class="postTitle">Lorem ipsum dolor sit amet
-                            consectetur, adipisicing elit. Quae dolorem debitis
-                            fuga adipisci animi quaerat vel officia, facilis
-                            cumque laudantium, voluptatem tenetur accusantium
-                            maiores quia ea, neque dolore expedita? Rem.</h2>
-                    </div>
-                    <div class="postBar">
-                        <div class="likeDiv">
-                            <span class="postLikes">100</span>
-                            <span class="postDislikes">2</span>
-                        </div>
-                        <h2 class="postTitle">Hello this is my first post!</h2>
-                    </div>
+                    </a>
+                    {{end}}
                     <div class="pageContainer">
                         <a>1</a>
                         <a>2</a>

@@ -6,13 +6,15 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var tpl *template.Template
 
-type TemplateData struct {
+type LoggedUser struct {
 	Username       string
 	IsLoggedIn     bool
 	ErrorMessage   string
@@ -30,10 +32,12 @@ func main() {
 	}
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
+	http.HandleFunc("/post/", PostHandler)
 	http.HandleFunc("/login", LoginHandler)
 	http.HandleFunc("/register", RegisterHandler)
 	http.HandleFunc("/logout", LogoutHandler)
 	http.HandleFunc("/create-a-post", CreateAPostHandler)
+	//http.HandleFunc("/post.html", PostHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
@@ -45,23 +49,40 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
 		return
 	}
-	logged, err := functions.AuthenticateUser(w, r)
-	if err != nil {
+
+	posts, err := functions.GetPostsFromDb()
+	if err != nil || posts == nil {
 		w.Header().Set("Content-Type", "text/html")
-		err = tpl.ExecuteTemplate(w, "index.html", TemplateData{IsLoggedIn: false})
-		if err != nil {
-			fmt.Println("user is not logged in")
-		}
+		tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
+		return
+	}
+
+	var username string
+	logUser := LoggedUser{Username: username, IsLoggedIn: true}
+
+	user_id, err := functions.AuthenticateUser(w, r)
+	if err != nil {
+		logUser.IsLoggedIn = false
 	} else {
-		username, err := functions.GetUserByID(logged)
+		username, err := functions.GetUserByID(user_id)
 		if err != nil {
 			http.Error(w, "cant find username from database", http.StatusInternalServerError)
 			fmt.Print(username)
 		}
-		w.Header().Set("Content-Type", "text/html")
-		tpl.ExecuteTemplate(w, "index.html", TemplateData{Username: username, IsLoggedIn: true})
-		return
+		logUser.Username = username
+		logUser.IsLoggedIn = true
 	}
+
+	data := struct {
+		Posts      []functions.Post
+		LoggedUser LoggedUser
+	}{
+		Posts:      posts,
+		LoggedUser: logUser,
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	tpl.ExecuteTemplate(w, "index.html", data) //replace nil with data
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -93,7 +114,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if exists {
 			w.Header().Set("Content-Type", "text/html")
-			tpl.ExecuteTemplate(w, "register.html", TemplateData{UserExists: "Username or Email already in use"})
+			tpl.ExecuteTemplate(w, "register.html", LoggedUser{UserExists: "Username or Email already in use"})
 			return
 		}
 		passwordHash, _ := functions.HashPassword(password)
@@ -103,7 +124,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 		functions.RegisterUserToDb(username, firstname, lastname, passwordHash, email)
 		w.Header().Set("Content-Type", "text/html")
-		tpl.ExecuteTemplate(w, "login.html", TemplateData{WelcomeMessage: "Welcome, you are registered, please login in!"})
+		tpl.ExecuteTemplate(w, "login.html", LoggedUser{WelcomeMessage: "Welcome, you are registered, please login in!"})
 
 		return
 	}
@@ -112,19 +133,16 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		err := tpl.ExecuteTemplate(w, "login.html", nil)
-		if err != nil {
-			log.Printf("Error executing template: %v", err)
+		user_id, err := functions.AuthenticateUser(w, r)
+		if err != nil || user_id == 0 {
+			http.ServeFile(w, r, "templates/login.html")
+			fmt.Println("User is not logged in. Redirecting to login.")
+			return
 		}
+		fmt.Println("User is already logged in, redirecting to index.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-	_, err := functions.AuthenticateUser(w, r)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusMovedPermanently)
-		return
-	}
-	// http.Redirect(w, r, "/", http.StatusMovedPermanently)
-
 	if r.Method == "POST" {
 		err := r.ParseForm()
 		if err != nil {
@@ -137,26 +155,28 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		user, err := functions.GetUserByEmail(email)
 		if err != nil {
 			log.Printf("Error retrieving user: %v\n", err)
-			tpl.ExecuteTemplate(w, "login.html", TemplateData{ErrorMessage: "Invalid email or user not found"})
+			tpl.ExecuteTemplate(w, "login.html", LoggedUser{ErrorMessage: "Invalid email or user not found"})
 			return
 		}
+
 		match := functions.CheckPasswordHash(password, user.Password)
 		if !match {
-			log.Printf("Incorrect password!")
-			tpl.ExecuteTemplate(w, "login.html", TemplateData{ErrorMessage: "Incorrect password"})
-			return
+			fmt.Println("Wrong password!")
+			http.Redirect(w, r, "/login", http.StatusUnauthorized)
 		}
+
+		err = functions.DeleteSessionFromDb(user.Id)
+		if err != nil {
+			fmt.Println("Failed to delete session from database after user logged in")
+		}
+
+		functions.RemoveCookieFromClient(w)
 
 		sessionID, err := functions.GenerateSessionID(user.Password)
 		if err != nil {
 			ErrorHandler(w, "Error generating session ID", http.StatusInternalServerError)
 			return
 		}
-
-		// cookieName, err := functions.GenerateCookieName(user.Email)
-		// if err != nil {
-		// 	fmt.Print(err)
-		// }
 
 		cookieName := "brownie" //??vb peaks kasutama nime generaatorit??
 		fmt.Printf("cookie name: %s\ncookie value: %s\n", cookieName, sessionID)
@@ -171,43 +191,50 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	user_id, err := functions.AuthenticateUser(w, r)
-	if err != nil {
+	if err != nil || user_id == 0 {
 		fmt.Println(err)
+		fmt.Println("aaa")
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 	}
+
 	err = functions.DeleteSessionFromDb(user_id)
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println("eee")
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 	}
-	http.SetCookie(w, &http.Cookie{
-		Name:   "brownie",
-		Path:   "/",
-		MaxAge: -1, //MaxAge <0 means delete cookie now
-	})
+	functions.RemoveCookieFromClient(w)
 	fmt.Printf("Deleted %v's session", user_id)
 	http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 }
 
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		// TODO: Check for cookie/if user is logged in
+		user_id, err := functions.AuthenticateUser(w, r)
+		if err != nil || user_id == 0 {
+			fmt.Println("User is not logged in. Redirecting to login.")
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		}
 		http.ServeFile(w, r, "templates/create-a-post.html")
 		return
 	}
 	if r.Method == "POST" {
-		// TODO: Double check for cookie/if user is logged in?!
 
 		err := r.ParseForm()
 		if err != nil {
 			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
 		}
 
+		// TODO: Add categories to html and use them here.
+
 		postTitle := r.FormValue("userPostTitle")
 		postBody := r.FormValue("userPostBodyText")
 
-		// TODO: Find it out using a cookie
-		user_id := 0
+		user_id, err := functions.AuthenticateUser(w, r)
+		if err != nil || user_id == 0 {
+			fmt.Println("User is not logged in. Redirecting to login.")
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		}
 
 		functions.RegisterPostToDb(user_id, postTitle, postBody)
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
@@ -226,4 +253,29 @@ func ErrorHandler(w http.ResponseWriter, s string, i int) {
 
 	w.WriteHeader(i)
 	tpl.ExecuteTemplate(w, "error.html", data)
+}
+
+func PostHandler(w http.ResponseWriter, r *http.Request) {
+	if !strings.HasPrefix(r.URL.Path, "/post/") {
+		http.NotFound(w, r)
+		return
+	}
+
+	postID := strings.TrimPrefix(r.URL.Path, "/post/")
+	post_id, err := strconv.Atoi(postID)
+	if err != nil {
+		fmt.Println("Error converting id from string to int")
+	}
+	currentPost, err := functions.GetPostById(post_id)
+	if err != nil {
+		fmt.Println("Error getting post info from database")
+	}
+
+	data := struct {
+		Post functions.Post
+	}{
+		Post: currentPost,
+	}
+
+	tpl.ExecuteTemplate(w, "post.html", data)
 }
