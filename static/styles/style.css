@@ -320,6 +320,18 @@ hr {
     color: greenyellow;
     font-size: 2rem;
 }
+.error-message {
+    color: red;
+    margin: 10px 0;
+}
+.welcome-message {
+    color: yellow;
+    margin: 10px 0;
+}
+.user-exists {
+    color: red;
+    margin: 10px 0;
+}
 
 .noEffectArticle {
     text-decoration: none;

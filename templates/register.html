@@ -16,6 +16,9 @@
                 <input type="text" name="lastname" class="inputBox" placeholder="Last Name" required>
                 <input type="password" name="password" class="inputBox" placeholder="Password" required>
                 <input type="email" name="email" class="inputBox" placeholder="Email" required>
+                {{if .UserExists}}
+                <div class="user-exists">{{.UserExists}}</div>
+                {{end}}
                 <input type="submit" value="REGISTER" id="submit">
                 <a href="/login">Already a user? Log in!</a>
             </form>

@@ -15,14 +15,21 @@ import (
 var tpl *template.Template
 
 type LoggedUser struct {
-	Username   string
-	IsLoggedIn bool
+	Username       string
+	IsLoggedIn     bool
+	ErrorMessage   string
+	WelcomeMessage string
+	UserExists     string
 }
 
 func main() {
+	var err error
 	functions.InitDb()
 	defer functions.CloseDb()
-	tpl, _ = template.ParseGlob("templates/*.html")
+	tpl, err = template.ParseGlob("templates/*.html")
+	if err != nil {
+		log.Fatalf("Error parsing remplates: %v", err)
+	}
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
 	http.HandleFunc("/post/", PostHandler)
@@ -42,10 +49,9 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
 		return
 	}
-	
 
 	posts, err := functions.GetPostsFromDb()
-	if err != nil || posts == nil {
+	if err != nil {
 		w.Header().Set("Content-Type", "text/html")
 		tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
 		return
@@ -68,10 +74,10 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Posts []functions.Post
-		LoggedUser LoggedUser 
+		Posts      []functions.Post
+		LoggedUser LoggedUser
 	}{
-		Posts: posts,
+		Posts:      posts,
 		LoggedUser: logUser,
 	}
 
@@ -82,7 +88,10 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received (/register) a request with method:", r.Method)
 	if r.Method == "GET" {
-		http.ServeFile(w, r, "templates/register.html")
+		err := tpl.ExecuteTemplate(w, "register.html", nil)
+		if err != nil {
+			log.Printf("Error executing template: %v", err)
+		}
 		return
 	}
 	if r.Method == "POST" {
@@ -104,7 +113,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if exists {
-			http.Error(w, "Username or Email already in use", http.StatusConflict)
+			w.Header().Set("Content-Type", "text/html")
+			tpl.ExecuteTemplate(w, "register.html", LoggedUser{UserExists: "Username or Email already in use"})
 			return
 		}
 		passwordHash, _ := functions.HashPassword(password)
@@ -113,9 +123,10 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Form data:", username, firstname, lastname, email)
 
 		functions.RegisterUserToDb(username, firstname, lastname, passwordHash, email)
+		w.Header().Set("Content-Type", "text/html")
+		tpl.ExecuteTemplate(w, "login.html", LoggedUser{WelcomeMessage: "Welcome, you are registered, please login in!"})
 
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		fmt.Fprintln(w, "Welcome, you are registered, please login in!")
+		return
 	}
 
 }
@@ -124,8 +135,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		user_id, err := functions.AuthenticateUser(w, r)
 		if err != nil || user_id == 0 {
-			http.ServeFile(w, r, "templates/login.html")
-			fmt.Println("User is not logged in. Redirecting to login.")
+			tpl.ExecuteTemplate(w, "login.html", nil)
 			return
 		}
 		fmt.Println("User is already logged in, redirecting to index.")
@@ -144,14 +154,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		user, err := functions.GetUserByEmail(email)
 		if err != nil {
 			log.Printf("Error retrieving user: %v\n", err)
-			http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+			tpl.ExecuteTemplate(w, "login.html", LoggedUser{ErrorMessage: "Invalid email or password"})
 			return
 		}
 
 		match := functions.CheckPasswordHash(password, user.Password)
 		if !match {
 			fmt.Println("Wrong password!")
-			http.Redirect(w, r, "/login", http.StatusUnauthorized)
+			tpl.ExecuteTemplate(w, "login.html", LoggedUser{ErrorMessage: "Invalid email or password"})
 		}
 
 		err = functions.DeleteSessionFromDb(user.Id)
