@@ -25,6 +25,7 @@ func main() {
 	http.HandleFunc("/register", RegisterHandler)
 	http.HandleFunc("/logout", LogoutHandler)
 	http.HandleFunc("/create-a-post", CreateAPostHandler)
+	//http.HandleFunc("/post.html", PostHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)

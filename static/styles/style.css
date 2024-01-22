@@ -311,3 +311,69 @@ hr {
     text-decoration: none;
     color: inherit;
 }
+
+.postContainer {
+    background-color: #494948;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    margin-top: 70px; /* Adjust as needed */
+    width: 80%;
+    max-width: 800px;
+}
+
+.postHeader {
+    margin-bottom: 15px;
+}
+
+.postTitle {
+    color: greenyellow;
+}
+
+.postBody {
+    margin-bottom: 20px;
+}
+
+.postActions {
+    display: flex;
+    justify-content: start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.likeButton, .dislikeButton {
+    cursor: pointer;
+    user-select: none;
+}
+
+.commentSection {
+    margin-top: 30px;
+}
+
+.commentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.commentInputBox {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.commentSubmit {
+    background-color: greenyellow;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: black;
+}
+
+.commentSubmit:hover {
+    background-color: green;
+}
