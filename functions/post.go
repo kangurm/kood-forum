@@ -1,6 +1,9 @@
 package functions
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type Post struct {
 	Post_id string
@@ -8,6 +11,22 @@ type Post struct {
 	Title   string
 	Text    string
 	Created string
+}
+
+func RegisterPostToDb(user_id int, postTitle, postBody string) {
+
+	statement, err := db.Prepare("INSERT INTO post(user_id, postTitle, postBody) VALUES(?, ?, ?)")
+	if err != nil {
+		log.Printf("Error preparing data: %v", err)
+		return
+	}
+	defer statement.Close()
+	_, err = statement.Exec(user_id, postTitle, postBody)
+	if err != nil {
+		log.Printf("Error executing data: %v", err)
+		return
+	}
+	fmt.Println("Inserted data into database:", user_id, postTitle, postBody)
 }
 
 func GetCategoriesFromDb() []string {

@@ -26,6 +26,7 @@ func main() {
 	var err error
 	functions.InitDb()
 	defer functions.CloseDb()
+	//functions.RegisterCommentToDb(1, 1, "ahtungtestung")
 	tpl, err = template.ParseGlob("templates/*.html")
 	if err != nil {
 		log.Fatalf("Error parsing remplates: %v", err)
@@ -37,7 +38,8 @@ func main() {
 	http.HandleFunc("/register", RegisterHandler)
 	http.HandleFunc("/logout", LogoutHandler)
 	http.HandleFunc("/create-a-post", CreateAPostHandler)
-	//http.HandleFunc("/post.html", PostHandler)
+	//http.HandleFunc("/post", PostHandler)
+	//http.HandleFunc("/post/comment", CreateACommentHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
@@ -82,7 +84,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	tpl.ExecuteTemplate(w, "index.html", data) //replace nil with data
+	tpl.ExecuteTemplate(w, "index.html", data)
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -277,4 +279,32 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tpl.ExecuteTemplate(w, "post.html", data)
+}
+
+func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+
+		err := r.ParseForm()
+		if err != nil {
+			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
+			return
+		}
+
+		commentBody := r.FormValue("comment")
+		fmt.Println(commentBody)
+		postIDStr := r.URL.Query().Get("post_id")
+		postID, err := strconv.Atoi(postIDStr)
+		if err != nil {
+			ErrorHandler(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+		userID, err := functions.AuthenticateUser(w, r)
+		if err != nil || userID == 0 {
+			fmt.Println("User is not logged in. To make a comment, the user must be logged in.")
+			http.Redirect(w, r, "/post/", http.StatusTemporaryRedirect)
+		}
+
+		functions.RegisterCommentToDb(userID, postID, commentBody)
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	}
 }
