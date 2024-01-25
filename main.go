@@ -26,14 +26,13 @@ func main() {
 	var err error
 	functions.InitDb()
 	defer functions.CloseDb()
-	//functions.RegisterCommentToDb(1, 1, "ahtungtestung")
 	tpl, err = template.ParseGlob("templates/*.html")
 	if err != nil {
 		log.Fatalf("Error parsing remplates: %v", err)
 	}
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
-	http.HandleFunc("/post/", PostHandler)
+	http.HandleFunc("/post/", PostAndCommentHandler)
 	http.HandleFunc("/login", LoginHandler)
 	http.HandleFunc("/register", RegisterHandler)
 	http.HandleFunc("/logout", LogoutHandler)
@@ -256,7 +255,7 @@ func ErrorHandler(w http.ResponseWriter, s string, i int) {
 	tpl.ExecuteTemplate(w, "error.html", data)
 }
 
-func PostHandler(w http.ResponseWriter, r *http.Request) {
+func PostAndCommentHandler(w http.ResponseWriter, r *http.Request) {
 	if !strings.HasPrefix(r.URL.Path, "/post/") {
 		http.NotFound(w, r)
 		return
@@ -271,13 +270,18 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Error getting post info from database")
 	}
-
+	currentComments, err := functions.GetCommentsByPostId(post_id)
+	if err != nil {
+		fmt.Println("Error getting comment info from database")
+	}
 	data := struct {
-		Post   functions.Post
-		PostID int
+		Post     functions.Post
+		PostID   int
+		Comments []functions.Comment
 	}{
-		Post:   currentPost,
-		PostID: post_id,
+		Post:     currentPost,
+		PostID:   post_id,
+		Comments: currentComments,
 	}
 
 	tpl.ExecuteTemplate(w, "post.html", data)
