@@ -260,6 +260,15 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var logUser LoggedUser
+
+	user_id, err := functions.AuthenticateUser(w, r)
+	if err != nil || user_id == 0 {
+		logUser.IsLoggedIn = false
+	} else {
+		logUser.IsLoggedIn = true
+	}
+
 	postID := strings.TrimPrefix(r.URL.Path, "/post/")
 	post_id, err := strconv.Atoi(postID)
 	if err != nil {
@@ -270,10 +279,34 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error getting post info from database")
 	}
 
+	action := r.URL.Query().Get("action")
+	var like bool
+	switch action {
+	case "like":
+		like = true
+	case "dislike":
+		like = false
+	}
+	
+	if logUser.IsLoggedIn {
+		match, err := functions.CheckForReaction(post_id, user_id)
+		if err != nil {
+			fmt.Println(err)
+		}
+		if match {
+			functions.RemoveReactionFromDb(post_id, user_id)
+		}
+		functions.RegisterReactionToDb(post_id, user_id, like)
+	} else {
+		logUser.ErrorMessage = "Please log in to comment and like"
+	}
+
 	data := struct {
 		Post functions.Post
+		LoggedUser LoggedUser
 	}{
 		Post: currentPost,
+		LoggedUser: logUser,
 	}
 
 	tpl.ExecuteTemplate(w, "post.html", data)

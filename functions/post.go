@@ -10,6 +10,15 @@ type Post struct {
 	Created string
 }
 
+type Reaction struct {
+	Reaction_id string
+	Post_id string
+	User_id string
+	Comment_id string
+	Like bool
+	Created string
+}
+
 func GetCategoriesFromDb() []string {
 	rows, err := db.Query("SELECT text FROM category")
 	if err != nil {
@@ -72,4 +81,28 @@ func GetPostById(postID int) (Post, error) {
 	}
 
 	return post, nil
+}
+
+func GetReactionsForPost(postID int) ([]Reaction, error) {
+	rows, err := db.Query("SELECT id, post_id, user_id, comment_id, reaction_bool, created FROM reaction WHERE post_id = ?", postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reactions []Reaction
+	
+	for rows.Next() {
+		var reaction Reaction
+		if err := rows.Scan(&reaction.Reaction_id, &reaction.Post_id, &reaction.User_id, &reaction.Comment_id, &reaction.Reaction, &reaction.Created); err != nil {
+			return nil, err
+		}
+		reactions = append(reactions, reaction)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return reactions, nil
 }
