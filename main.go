@@ -39,7 +39,7 @@ func main() {
 	http.HandleFunc("/logout", LogoutHandler)
 	http.HandleFunc("/create-a-post", CreateAPostHandler)
 	//http.HandleFunc("/post", PostHandler)
-	//http.HandleFunc("/post/comment", CreateACommentHandler)
+	http.HandleFunc("/post/comment", CreateACommentHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
@@ -273,9 +273,11 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Post functions.Post
+		Post   functions.Post
+		PostID int
 	}{
-		Post: currentPost,
+		Post:   currentPost,
+		PostID: post_id,
 	}
 
 	tpl.ExecuteTemplate(w, "post.html", data)
@@ -292,7 +294,9 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 
 		commentBody := r.FormValue("comment")
 		fmt.Println(commentBody)
+
 		postIDStr := r.URL.Query().Get("post_id")
+		fmt.Println("postIDStr:", postIDStr)
 		postID, err := strconv.Atoi(postIDStr)
 		if err != nil {
 			ErrorHandler(w, "Invalid post ID", http.StatusBadRequest)
@@ -305,6 +309,6 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		functions.RegisterCommentToDb(userID, postID, commentBody)
-		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+		http.Redirect(w, r, "/post/"+postIDStr, http.StatusMovedPermanently)
 	}
 }

@@ -39,7 +39,7 @@
             </div>
             <div class="commentSection">
                 <h3>Comments</h3>
-                <form method="POST" action="/post/Comment">
+                <form method="POST" action="/post/comment?post_id={{.PostID}}">
                     <textarea type="text" name="comment" class="commentInputBox"
                         placeholder="Write a comment..."></textarea>
                     <button type="submit" class="commentSubmit">Submit</button>
