@@ -93,10 +93,12 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received (/register) a request with method:", r.Method)
 	if r.Method == "GET" {
-		err := tpl.ExecuteTemplate(w, "register.html", nil)
+		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil {
-			log.Printf("Error executing template: %v", err)
+			loggedUser.IsLoggedIn = false
 		}
+		data := functions.BuildResponse(loggedUser)
+		tpl.ExecuteTemplate(w, "register.html", data)
 		return
 	}
 	if r.Method == "POST" {
@@ -127,7 +129,10 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 		functions.RegisterUserToDb(username, firstname, lastname, passwordHash, email)
 		w.Header().Set("Content-Type", "text/html")
-		tpl.ExecuteTemplate(w, "login.html", functions.LoggedUser{WelcomeMessage: "Welcome, you are registered, please login in!"})
+		var loggedUser functions.LoggedUser
+		loggedUser.WelcomeMessage = "Welcome, you are registered, please login in!"
+		data := functions.BuildResponse(loggedUser)
+		tpl.ExecuteTemplate(w, "login.html", data)
 	}
 }
 

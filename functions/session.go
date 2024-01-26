@@ -132,7 +132,7 @@ func AuthenticateUser(w http.ResponseWriter, r *http.Request) (LoggedUser, error
 
 func RemoveCookieFromClient(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
-		Name:   "brownie",
+		Name:   "forum",
 		Path:   "/",
 		MaxAge: -1, //MaxAge <0 means delete cookie now
 	})
