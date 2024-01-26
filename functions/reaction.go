@@ -5,6 +5,15 @@ import (
 	"log"
 )
 
+type Reaction struct {
+	Reaction_id string
+	Post_id     string
+	User_id     string
+	Comment_id  string
+	Like        bool
+	Created     string
+}
+
 func RegisterReactionToDb(post_id int, user_id int, like int) error {
 
 	statement, err := db.Prepare("INSERT INTO reaction(post_id, user_id, reaction_bool) VALUES(?, ?, ?)")
@@ -46,28 +55,27 @@ func RemoveReactionFromPost(post_id int, user_id int, reactionToRemove string) e
 	return nil
 }
 
-
 func UpdateReactionCount(post_id int, reactionTypeToAdd string, remove bool, reactionTypeToRemove string) error {
-	
+
 	if reactionTypeToAdd == "" && !remove {
 		return fmt.Errorf("returned early from UpdateReactionCount, because input was invalid")
 	}
-	
+
 	var reactionType string
 	doRecursive := true
 
 	// If we only want to remove count and not add a new one.
-	if reactionTypeToAdd == "" && remove && reactionTypeToRemove != ""{
+	if reactionTypeToAdd == "" && remove && reactionTypeToRemove != "" {
 		reactionType = reactionTypeToRemove
 		doRecursive = false
 	}
 
 	// If we only need to add count
-	if  reactionTypeToRemove == "" && !remove && reactionTypeToAdd != "" {
+	if reactionTypeToRemove == "" && !remove && reactionTypeToAdd != "" {
 		reactionType = reactionTypeToAdd
 		doRecursive = false
 	}
-	
+
 	var template string
 	// Looks like this if we want to remove: ("UPDATE post SET like_count = like_count - 1 WHERE post_id = ?")
 	// or this if we want to add ("UPDATE post SET like_count = like_count + 1 WHERE post_id = ?")
@@ -126,7 +134,7 @@ func AddReactionToPost(post_id int, user_id int, like bool, comment bool) {
 		reaction = 1
 		reactionType = "like_count"
 	}
-	
+
 	if comment {
 		reaction = 2
 		reactionType = "comment_count"
@@ -178,7 +186,7 @@ func AddReactionToPost(post_id int, user_id int, like bool, comment bool) {
 			fmt.Println("Error updating reaction")
 		}
 
-	// If user doesnt have like/dislike on the post, then add reaction count to POST table and add a new entry to REACTION table.
+		// If user doesnt have like/dislike on the post, then add reaction count to POST table and add a new entry to REACTION table.
 	} else {
 		UpdateReactionCount(post_id, reactionType, false, "")
 

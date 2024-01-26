@@ -22,10 +22,12 @@
                         placeholder="Search...">
                 </div>
                 <div class="end">
-                    {{if.LoggedUser.IsLoggedIn}}
-                    <a href="/create-a-post" class="margin">New Post</a>
+                    {{if .LoggedUser.IsLoggedIn}}
+                    <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: azure;">{{.LoggedUser.Username}}</h4></h3>
+                    <span class="padding"></span>
+                    <a href="/create-a-post">New Post</a>
+                    <span class="padding"></span>
                     <a href="/logout">Logout</a>
-                    <h3 id="user-info">{{.LoggedUser.Username}} have logged in</h3>
                     {{else}}
                     <a href="/login">Login</a>
                     {{end}}
@@ -40,17 +42,15 @@
                 </div>
                 <hr>
                 <nav class="topicsArea">
-                    <a class="topics">World News</a>
-                    <a class="topics">Web Design</a>
-                    <a class="topics">Game Dev</a>
-                    <a class="topics">Cooking</a>
-                    <a class="topics">Other</a>
+                    {{range .Category}}
+                    <a class="topics">{{.Text}}</a>
+                    {{end}}
                     <h4>...</h4>
                 </nav>
             </div>
             <div class="main" style="width: 100%;">
                 <div class="navbar">
-                    <button id="topButton" class="sortButtons">Top</button>
+                    <a id="topButton" class="sortButtons" href="/?sort=top">Top</a>
                     <button id="hotButton" class="sortButtons">Hot</button>
                     <button id="newButton" class="sortButtons">New</button>
                 </div>
@@ -60,7 +60,8 @@
                         <div class="postBar">
                             <div class="likeDiv">
                                 <span class="postLikes">{{.LikeCount}}</span>
-                                <span class="postDislikes">{{.DislikeCount}}</span>
+                                <span
+                                    class="postDislikes">{{.DislikeCount}}</span>
                             </div>
                             <h2 class="postTitle">{{.Title}}</h2>
                         </div>
