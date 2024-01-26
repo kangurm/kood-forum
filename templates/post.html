@@ -48,7 +48,7 @@
             </div>
             <div class="commentSection">
                 <h3>Comments</h3>
-                <form method="POST" action="/post/comment?post_id={{.PostID}}">
+                <form method="POST" action="/post/comment?post_id={{.Posts.Post_id}}">
                     <textarea type="text" name="comment" class="commentInputBox"
                         placeholder="Write a comment..."></textarea>
                     <button type="submit" class="commentSubmit">Submit</button>

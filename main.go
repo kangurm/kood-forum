@@ -321,18 +321,18 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 			ErrorHandler(w, "Invalid post ID", http.StatusBadRequest)
 			return
 		}
-		userID, err := functions.AuthenticateUser(w, r)
-		if err != nil || userID == 0 {
+		loggedUser, err := functions.AuthenticateUser(w, r)
+		if err != nil || loggedUser.Id == 0 {
 			fmt.Println("User is not logged in. To make a comment, the user must be logged in.")
 			http.Redirect(w, r, "/post/", http.StatusTemporaryRedirect)
 		}
 
-		username, err := functions.GetUserByID(userID)
+		username, err := functions.GetUserByID(loggedUser.Id)
 		if err != nil {
 			fmt.Println("Error getting username")
 		}
 
-		functions.RegisterCommentToDb(userID, postID, commentBody, username)
+		functions.RegisterCommentToDb(loggedUser.Id, postID, commentBody, username)
 		http.Redirect(w, r, "/post/"+postIDStr, http.StatusMovedPermanently)
 	}
 }
