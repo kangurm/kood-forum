@@ -66,7 +66,7 @@ func GetPostsFromDb() ([]Post, error) {
 }
 
 func GetPostById(postID int) (Post, error) {
-	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created FROM post WHERE id = ?", postID)
+	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created, like_count, dislike_count, comment_count FROM post WHERE id = ?", postID)
 	if err != nil {
 		return Post{}, err
 	}

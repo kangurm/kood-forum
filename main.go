@@ -37,6 +37,7 @@ func main() {
 	http.HandleFunc("/register", RegisterHandler)
 	http.HandleFunc("/logout", LogoutHandler)
 	http.HandleFunc("/create-a-post", CreateAPostHandler)
+	http.HandleFunc("/post/react", ReactionHandler)
 	//http.HandleFunc("/post.html", PostHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -44,6 +45,9 @@ func main() {
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
 
 	if r.URL.Path != "/" {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
@@ -208,6 +212,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method == "GET" {
 		user_id, err := functions.AuthenticateUser(w, r)
 		if err != nil || user_id == 0 {
@@ -255,6 +260,10 @@ func ErrorHandler(w http.ResponseWriter, s string, i int) {
 }
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+
 	if !strings.HasPrefix(r.URL.Path, "/post/") {
 		http.NotFound(w, r)
 		return
@@ -279,28 +288,75 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error getting post info from database")
 	}
 
-	action := r.URL.Query().Get("action")
-	var like bool
-	switch action {
-	case "like":
-		like = true
-	case "dislike":
-		like = false
-	}
-	
-	if logUser.IsLoggedIn {
-		functions.AddReactionToPost(post_id, user_id, like, false)
-	} else {
-		logUser.ErrorMessage = "Please log in to comment and like"
+	fmt.Println("Postid: ", post_id)
+
+	if r.Method == "POST" {
+		action := r.URL.Query().Get("action")
+		var like bool
+		switch action {
+		case "like":
+			like = true
+		case "dislike":
+			like = false
+		}
+
+		if logUser.IsLoggedIn {
+			functions.AddReactionToPost(post_id, user_id, like, false)
+		} else {
+			logUser.ErrorMessage = "Please log in to comment and like"
+		}
 	}
 
 	data := struct {
-		Post functions.Post
+		Post       functions.Post
 		LoggedUser LoggedUser
 	}{
-		Post: currentPost,
+		Post:       currentPost,
 		LoggedUser: logUser,
 	}
 
 	tpl.ExecuteTemplate(w, "post.html", data)
+}
+
+func ReactionHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+	if r.Method == "GET" {
+		var logUser LoggedUser
+
+		user_id, err := functions.AuthenticateUser(w, r)
+		if err != nil || user_id == 0 {
+			logUser.IsLoggedIn = false
+		} else {
+			logUser.IsLoggedIn = true
+		}
+
+		fmt.Println("User_id: ", user_id)
+
+		postID := r.URL.Query().Get("post_id")
+		fmt.Println("postIDStr:", postID)
+		post_id, err := strconv.Atoi(postID)
+		fmt.Println("Post_id: ", post_id)
+		if err != nil {
+			ErrorHandler(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+
+		action := r.URL.Query().Get("action")
+		var like bool
+		switch action {
+		case "like":
+			like = true
+		case "dislike":
+			like = false
+		}
+
+		if logUser.IsLoggedIn {
+			functions.AddReactionToPost(post_id, user_id, like, false)
+		} else {
+			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+		}
+		http.Redirect(w, r, "/post/"+postID, http.StatusMovedPermanently)
+	}
 }

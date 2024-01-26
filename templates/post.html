@@ -34,8 +34,8 @@
             </div>
             <div class="postBody">{{.Post.Text}}</div>
             <div class="postActions">
-                <span class="likeButton">👍 Like (.likes)</span>
-                <span class="dislikeButton">👎 Dislike (.dislikes)</span>
+                <a href="/post/react?post_id={{.Post.Post_id}}&action=like" class="likeButton">👍 Like ({{.Post.LikeCount}})</a>
+                <a href="/post/react?post_id={{.Post.Post_id}}&action=dislike" class="dislikeButton">👎 Dislike ({{.Post.DislikeCount}})</a>
             </div>
             <div class="commentSection">
                 <h3>Comments</h3>

@@ -32,12 +32,14 @@ func RemoveReactionFromPost(post_id int, user_id int, reactionToRemove string) e
 
 	statement, err := db.Prepare("DELETE FROM reaction WHERE post_id = ? AND user_id = ?")
 	if err != nil {
+		fmt.Println("STUCK 35")
 		return err
 	}
 	defer statement.Close()
 
 	_, err = statement.Exec(post_id, user_id)
 	if err != nil {
+		fmt.Println("STUCK 42")
 		return err
 	}
 	fmt.Printf("Deleted reaction for user (%v) on post (%v).\n", user_id, post_id)
@@ -70,10 +72,10 @@ func UpdateReactionCount(post_id int, reactionTypeToAdd string, remove bool, rea
 	// Looks like this if we want to remove: ("UPDATE post SET like_count = like_count - 1 WHERE post_id = ?")
 	// or this if we want to add ("UPDATE post SET like_count = like_count + 1 WHERE post_id = ?")
 	if remove {
-		template = "UPDATE post SET " + reactionTypeToRemove + " = " + reactionTypeToRemove + " - 1 WHERE post_id = ?"
+		template = "UPDATE post SET " + reactionTypeToRemove + " = " + reactionTypeToRemove + " - 1 WHERE id = ?"
 		reactionType = reactionTypeToRemove
 	} else {
-		template = "UPDATE post SET " + reactionTypeToAdd + " = " + reactionTypeToAdd + " + 1 WHERE post_id = ?"
+		template = "UPDATE post SET " + reactionTypeToAdd + " = " + reactionTypeToAdd + " + 1 WHERE id = ?"
 		reactionType = reactionTypeToAdd
 	}
 
@@ -135,7 +137,7 @@ func AddReactionToPost(post_id int, user_id int, like bool, comment bool) {
 	// Check if user has a like/dislike on the post already
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM reaction WHERE post_id = ? AND user_id = ?)", post_id, user_id).Scan(&exists)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("STUCK 138")
 	}
 
 	var previousReactionInt int
@@ -144,7 +146,7 @@ func AddReactionToPost(post_id int, user_id int, like bool, comment bool) {
 	// Get user's previous reaction
 	err = db.QueryRow("SELECT reaction_bool FROM reaction WHERE post_id = ? AND user_id = ?", post_id, user_id).Scan(&previousReactionInt)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("No previous reaction.")
 	}
 
 	// Set previousReactionStr for future operations, check if new reaction is the same as previous and return early if so.
@@ -182,7 +184,7 @@ func AddReactionToPost(post_id int, user_id int, like bool, comment bool) {
 
 		err := RegisterReactionToDb(post_id, user_id, reaction)
 		if err != nil {
-			fmt.Println("Error registering reaction to db ln76")
+			fmt.Println("Error registering reaction to db ln187")
 		}
 	}
 }
