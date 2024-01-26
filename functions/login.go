@@ -25,16 +25,13 @@ func CheckPasswordHash(password, hash string) bool {
 func GetUserByEmail(email string) (*User, error) {
 	var user User
 	err := db.QueryRow("SELECT id, email, password FROM user WHERE email = ?", email).Scan(&user.Id, &user.Email, &user.Password)
-	// fmt.Print(&user)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
-
 }
 
 func GetUserByID(userID int) (string, error) {
-	fmt.Println("GetUserByID called with userID:", userID)
 
 	rows, err := db.Query("SELECT username FROM user WHERE id= ?", userID)
 	if err != nil {
@@ -50,7 +47,6 @@ func GetUserByID(userID int) (string, error) {
 			fmt.Println("Error scanning row:", err)
 			return "", err
 		}
-		fmt.Println("Scanned username:", username)
 	}
 
 	if username == "" {
@@ -58,6 +54,5 @@ func GetUserByID(userID int) (string, error) {
 		return "", errors.New("no username found for the given userID")
 	}
 
-	fmt.Println("Returning username:", username)
 	return username, nil
 }

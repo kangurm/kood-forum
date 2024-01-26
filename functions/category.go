@@ -1,22 +1,26 @@
 package functions
 
-import "fmt"
+type Category struct {
+	ID      string
+	Text    string
+	Created string
+}
 
-func GetCategoriesFromDb() []string {
-	rows, err := db.Query("SELECT text FROM category")
+func GetCategoriesFromDb() ([]Category, error) {
+	rows, err := db.Query("SELECT id, text, created FROM category")
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	defer rows.Close()
 
-	var categories []string
+	var categories []Category
 
 	for rows.Next() {
-		var categoryText string
-		if err := rows.Scan(&categoryText); err != nil {
-			fmt.Println(err)
+		var category Category
+		if err := rows.Scan(&category.ID, &category.Text, &category.Created); err != nil {
+			return nil, err
 		}
-		categories = append(categories, categoryText)
+		categories = append(categories, category)
 	}
-	return categories
+	return categories, nil
 }

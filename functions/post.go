@@ -6,15 +6,18 @@ import (
 )
 
 type Post struct {
-	Post_id string
-	User_id string
-	Title   string
-	Text    string
-	Created string
+	Post_id      string
+	User_id      string
+	Title        string
+	Text         string
+	Created      string
+	LikeCount    int
+	DislikeCount int
+	CommentCount int
 }
 
 func GetPostsFromDb() ([]Post, error) {
-	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created FROM post")
+	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created, like_count, dislike_count, comment_count FROM post")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -24,7 +27,7 @@ func GetPostsFromDb() ([]Post, error) {
 
 	for rows.Next() {
 		var post Post
-		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created); err != nil {
+		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created, &post.LikeCount, &post.DislikeCount, &post.CommentCount); err != nil {
 			return nil, err
 		}
 		posts = append(posts, post)
@@ -38,7 +41,7 @@ func GetPostsFromDb() ([]Post, error) {
 }
 
 func GetPostById(postID int) (Post, error) {
-	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created FROM post WHERE id = ?", postID)
+	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created, like_count, dislike_count, comment_count FROM post WHERE id = ?", postID)
 	if err != nil {
 		return Post{}, err
 	}
@@ -46,7 +49,7 @@ func GetPostById(postID int) (Post, error) {
 
 	var post Post
 	for rows.Next() {
-		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created); err != nil {
+		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created, &post.LikeCount, &post.DislikeCount, &post.CommentCount); err != nil {
 			return Post{}, err
 		}
 	}
