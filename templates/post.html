@@ -44,8 +44,13 @@
                         placeholder="Write a comment..."></textarea>
                     <button type="submit" class="commentSubmit">Submit</button>
                 </form>
-                <div class="comments">{{.Comments}}</div>
-            </div>
+                <div class="comments">
+                    {{range .Comments}}
+                        <div class="comment">
+                            <p>{{.Text}}</p>
+                        </div>
+                    {{end}}
+             </div>
         </div>
     </body>
 </html>

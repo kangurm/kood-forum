@@ -32,12 +32,11 @@ func main() {
 	}
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
-	http.HandleFunc("/post/", PostAndCommentHandler)
+	http.HandleFunc("/post/", PostHandler)
 	http.HandleFunc("/login", LoginHandler)
 	http.HandleFunc("/register", RegisterHandler)
 	http.HandleFunc("/logout", LogoutHandler)
 	http.HandleFunc("/create-a-post", CreateAPostHandler)
-	//http.HandleFunc("/post", PostHandler)
 	http.HandleFunc("/post/comment", CreateACommentHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -255,7 +254,7 @@ func ErrorHandler(w http.ResponseWriter, s string, i int) {
 	tpl.ExecuteTemplate(w, "error.html", data)
 }
 
-func PostAndCommentHandler(w http.ResponseWriter, r *http.Request) {
+func PostHandler(w http.ResponseWriter, r *http.Request) {
 	if !strings.HasPrefix(r.URL.Path, "/post/") {
 		http.NotFound(w, r)
 		return
@@ -285,6 +284,7 @@ func PostAndCommentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tpl.ExecuteTemplate(w, "post.html", data)
+	fmt.Printf("%+v\n", currentComments)
 }
 
 func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
