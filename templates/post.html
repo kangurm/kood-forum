@@ -22,20 +22,29 @@
                         placeholder="Search...">
                 </div>
                 <div class="end">
-                    <a href="/create-a-post" class="margin">New Post</a>
-                    <a href="/login">Login</a>
+                    {{if .LoggedUser.IsLoggedIn}}
+                    <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: azure;">{{.LoggedUser.Username}}</h4></h3>
+                    <span class="padding"></span>
+                    <a href="/create-a-post">New Post</a>
+                    <span class="padding"></span>
                     <a href="/logout">Logout</a>
+                    {{else}}
+                    <a href="/login">Login</a>
+                    {{end}}
                 </div>
             </nav>
         </header>
         <div class="postContainer">
             <div class="postHeader">
-                <h1 class="postTitle">{{.Post.Title}}</h1>
+                <h1 class="postTitle">{{.Posts.Title}}</h1>
             </div>
-            <div class="postBody">{{.Post.Text}}</div>
+            <div class="postBody">{{.Posts.Text}}</div>
             <div class="postActions">
-                <span class="likeButton">👍 Like (.likes)</span>
-                <span class="dislikeButton">👎 Dislike (.dislikes)</span>
+                <a href="/post/react?post_id={{.Posts.Post_id}}&action=like"
+                    class="likeButton">👍 Like ({{.Posts.LikeCount}})</a>
+                <a href="/post/react?post_id={{.Posts.Post_id}}&action=dislike"
+                    class="dislikeButton">👎 Dislike
+                    ({{.Posts.DislikeCount}})</a>
             </div>
             <div class="commentSection">
                 <h3>Comments</h3>

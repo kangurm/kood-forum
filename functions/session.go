@@ -7,7 +7,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Returns sessionID, err
+type LoggedUser struct {
+	Id             int
+	Username       string
+	IsLoggedIn     bool
+	ErrorMessage   string
+	WelcomeMessage string
+	UserExists     string
+}
 
 func GenerateSessionID(password string) (string, error) {
 
@@ -95,24 +102,33 @@ func DeleteSessionFromDb(user_id int) error {
 	return nil
 }
 
-func AuthenticateUser(w http.ResponseWriter, r *http.Request) (userid int, err error) {
-	cookie, err := r.Cookie("brownie")
+func AuthenticateUser(w http.ResponseWriter, r *http.Request) (LoggedUser, error) {
+
+	var loggedUser LoggedUser
+
+	cookie, err := r.Cookie("forum")
 	if err != nil {
-		fmt.Println("Cookie not found from client:", err)
-		return 0, err
+		return LoggedUser{}, err
 	}
-	
+
+	// Remove cookie from client if user not logged in
 	user_id, err := GetUserIdFromSession(cookie.Value)
 	if user_id == 0 || err != nil {
-		fmt.Println("Cookie not found from database:", err, user_id)
 		RemoveCookieFromClient(w)
-		return 0, err
+		return LoggedUser{}, err
 	}
-	fmt.Println("user_id of user that is logged in: ", user_id)
-	return user_id, nil
+
+	username, err := GetUserByID(user_id)
+	if err != nil {
+		return LoggedUser{}, err
+	}
+
+	loggedUser.Id = user_id
+	loggedUser.Username = username
+	loggedUser.IsLoggedIn = true
+
+	return loggedUser, nil
 }
-
-
 
 func RemoveCookieFromClient(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
@@ -120,4 +136,10 @@ func RemoveCookieFromClient(w http.ResponseWriter) {
 		Path:   "/",
 		MaxAge: -1, //MaxAge <0 means delete cookie now
 	})
+}
+
+func NoCacheHeaders(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
 }

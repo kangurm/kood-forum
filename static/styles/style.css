@@ -61,8 +61,13 @@ footer {
 }
 
 .middle {
-    display: flow-root;
+    display: flexbox;
     flex-wrap: wrap;
+    text-align: center;
+    align-self: center;
+    position: absolute;
+    left: 35%;
+    right: 35%;
 }
 
 #homeArticle {
@@ -86,13 +91,14 @@ footer {
     text-decoration: none; /* Remove underline from links */
     margin-right: 10px; /* Consistent spacing */
     font-size: 16px; /* Match the font size of other elements */
-    line-height: 2.5rem; /* Align vertically within the navbar */
+    line-height: 2rem; /* Align vertically within the navbar */
     vertical-align: middle; /* Align text vertically */
 }
 
 .end #user-info {
     display: inline; /* Inline display to align with links */
     margin: 0; /* Reset margin for consistent alignment */
+    font-weight: normal;
 }
 
 
@@ -402,4 +408,13 @@ hr {
 
 .commentSubmit:hover {
     background-color: green;
+}
+
+.padding {
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.inline {
+    display: inline;
 }

@@ -7,6 +7,33 @@
         <title>Create a Post!</title>
     </head>
     <body>
+        <header>
+            <nav class="fixedContainer">
+                <div class="start">
+                    <div class="menuIcon">
+                        <div class="menuIconBars"></div>
+                        <div class="menuIconBars"></div>
+                        <div class="menuIconBars"></div>
+                    </div>
+                    <a id="homeArticle" href="/">Home</a>
+                </div>
+                <div class="middle">
+                    <input class="searchBar" type="search"
+                        placeholder="Search...">
+                </div>
+                <div class="end">
+                    {{if .LoggedUser.IsLoggedIn}}
+                    <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: azure;">{{.LoggedUser.Username}}</h4></h3>
+                    <span class="padding"></span>
+                    <a href="/create-a-post">New Post</a>
+                    <span class="padding"></span>
+                    <a href="/logout">Logout</a>
+                    {{else}}
+                    <a href="/login">Login</a>
+                    {{end}}
+                </div>
+            </nav>
+        </header>
         <div class="centerContainer">
             <form action class="loginForm" method="post">
                 <h3 class="h3title">Create a post</h3>
