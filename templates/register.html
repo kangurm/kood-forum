@@ -48,8 +48,8 @@
                     placeholder="Password" required>
                 <input type="email" name="email" class="inputBox"
                     placeholder="Email" required>
-                {{if .UserExists}}
-                <div class="user-exists">{{.UserExists}}</div>
+                {{if .LoggedUser.UserExists}}
+                <div class="user-exists">{{.LoggedUser.UserExists}}</div>
                 {{end}}
                 <input type="submit" value="REGISTER" id="submit">
                 <a href="/login">Already a user? Log in!</a>
