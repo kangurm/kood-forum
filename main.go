@@ -289,14 +289,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	if logUser.IsLoggedIn {
-		match, err := functions.CheckForReaction(post_id, user_id)
-		if err != nil {
-			fmt.Println(err)
-		}
-		if match {
-			functions.RemoveReactionFromDb(post_id, user_id)
-		}
-		functions.RegisterReactionToDb(post_id, user_id, like)
+		functions.AddReactionToPost(post_id, user_id, like, false)
 	} else {
 		logUser.ErrorMessage = "Please log in to comment and like"
 	}

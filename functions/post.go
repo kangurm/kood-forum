@@ -8,15 +8,18 @@ type Post struct {
 	Title   string
 	Text    string
 	Created string
+	LikeCount string
+	DislikeCount string
+	CommentCount string
 }
 
 type Reaction struct {
 	Reaction_id string
-	Post_id string
-	User_id string
-	Comment_id string
-	Like bool
-	Created string
+	Post_id     string
+	User_id     string
+	Comment_id  string
+	Like        bool
+	Created     string
 }
 
 func GetCategoriesFromDb() []string {
@@ -39,7 +42,7 @@ func GetCategoriesFromDb() []string {
 }
 
 func GetPostsFromDb() ([]Post, error) {
-	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created FROM post")
+	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created, like_count, dislike_count, comment_count FROM post")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -49,7 +52,7 @@ func GetPostsFromDb() ([]Post, error) {
 
 	for rows.Next() {
 		var post Post
-		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created); err != nil {
+		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created, &post.LikeCount, &post.DislikeCount, &post.CommentCount); err != nil {
 			return nil, err
 		}
 		posts = append(posts, post)
@@ -71,7 +74,7 @@ func GetPostById(postID int) (Post, error) {
 
 	var post Post
 	for rows.Next() {
-		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created); err != nil {
+		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created, &post.LikeCount, &post.DislikeCount, &post.CommentCount); err != nil {
 			return Post{}, err
 		}
 	}
@@ -83,26 +86,26 @@ func GetPostById(postID int) (Post, error) {
 	return post, nil
 }
 
-func GetReactionsForPost(postID int) ([]Reaction, error) {
-	rows, err := db.Query("SELECT id, post_id, user_id, comment_id, reaction_bool, created FROM reaction WHERE post_id = ?", postID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+// func GetReactionsForPost(postID int) ([]Reaction, error) {
+// 	rows, err := db.Query("SELECT id, post_id, user_id, comment_id, reaction_bool, created FROM reaction WHERE post_id = ?", postID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
 
-	var reactions []Reaction
-	
-	for rows.Next() {
-		var reaction Reaction
-		if err := rows.Scan(&reaction.Reaction_id, &reaction.Post_id, &reaction.User_id, &reaction.Comment_id, &reaction.Reaction, &reaction.Created); err != nil {
-			return nil, err
-		}
-		reactions = append(reactions, reaction)
-	}
+// 	var reactions []Reaction
 
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
+// 	for rows.Next() {
+// 		var reaction Reaction
+// 		if err := rows.Scan(&reaction.Reaction_id, &reaction.Post_id, &reaction.User_id, &reaction.Comment_id, &reaction.Like, &reaction.Created); err != nil {
+// 			return nil, err
+// 		}
+// 		reactions = append(reactions, reaction)
+// 	}
 
-	return reactions, nil
-}
+// 	if err := rows.Err(); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return reactions, nil
+// }
