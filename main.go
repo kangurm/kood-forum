@@ -30,7 +30,7 @@ func main() {
 	http.HandleFunc("/logout", LogoutHandler)
 	http.HandleFunc("/create-a-post", CreateAPostHandler)
 	http.HandleFunc("/post/react", ReactionHandler)
-	//http.HandleFunc("/post.html", PostHandler)
+	http.HandleFunc("/post/comment", CreateACommentHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)
@@ -87,7 +87,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	data := functions.BuildResponse(loggedUser, posts, comments, categories)
 
 	w.Header().Set("Content-Type", "text/html")
-	tpl.ExecuteTemplate(w, "index.html", data) //replace nil with data
+	tpl.ExecuteTemplate(w, "index.html", data)
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -292,9 +292,49 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error getting post info from database")
 		ErrorHandler(w, "Internal server error", http.StatusInternalServerError)
 	}
+	currentComments, err := functions.GetCommentsByPostId(post_id)
+	if err != nil {
+		fmt.Println("Error getting comment info from database")
+	}
+	data := functions.BuildResponse(loggedUser, currentPost, currentComments)
 
-	data := functions.BuildResponse(loggedUser, currentPost)
 	tpl.ExecuteTemplate(w, "post.html", data)
+	fmt.Printf("%+v\n", currentComments)
+}
+
+func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+
+		err := r.ParseForm()
+		if err != nil {
+			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
+			return
+		}
+
+		commentBody := r.FormValue("comment")
+		fmt.Println(commentBody)
+
+		postIDStr := r.URL.Query().Get("post_id")
+		fmt.Println("postIDStr:", postIDStr)
+		postID, err := strconv.Atoi(postIDStr)
+		if err != nil {
+			ErrorHandler(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+		loggedUser, err := functions.AuthenticateUser(w, r)
+		if err != nil || loggedUser.Id == 0 {
+			fmt.Println("User is not logged in. To make a comment, the user must be logged in.")
+			http.Redirect(w, r, "/post/", http.StatusTemporaryRedirect)
+		}
+
+		username, err := functions.GetUserByID(loggedUser.Id)
+		if err != nil {
+			fmt.Println("Error getting username")
+		}
+
+		functions.RegisterCommentToDb(loggedUser.Id, postID, commentBody, username)
+		http.Redirect(w, r, "/post/"+postIDStr, http.StatusMovedPermanently)
+	}
 }
 
 func ReactionHandler(w http.ResponseWriter, r *http.Request) {

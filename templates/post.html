@@ -48,14 +48,20 @@
             </div>
             <div class="commentSection">
                 <h3>Comments</h3>
-                <!-- Comment form -->
-                <form class="commentForm">
-                    <textarea class="commentInputBox"
+                <form method="POST" action="/post/comment?post_id={{.Posts.Post_id}}">
+                    <textarea type="text" name="comment" class="commentInputBox"
                         placeholder="Write a comment..."></textarea>
                     <button type="submit" class="commentSubmit">Submit</button>
                 </form>
-                <!-- Comments will be listed here -->
-            </div>
+                <div class="comments">
+                    {{range .Comments}}
+                        <div class="comment">
+                            <p>{{.Username}}</p>
+                            <p>{{.Text}}</p>
+                            <p>Created: {{.Created}}</p>
+                        </div>
+                    {{end}}
+             </div>
         </div>
     </body>
 </html>
