@@ -47,7 +47,9 @@
                 <div class="comments">
                     {{range .Comments}}
                         <div class="comment">
+                            <p>{{.Username}}</p>
                             <p>{{.Text}}</p>
+                            <p>Created: {{.Created}}</p>
                         </div>
                     {{end}}
              </div>

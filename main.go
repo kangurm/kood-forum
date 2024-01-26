@@ -312,7 +312,12 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/post/", http.StatusTemporaryRedirect)
 		}
 
-		functions.RegisterCommentToDb(userID, postID, commentBody)
+		username, err := functions.GetUserByID(userID)
+		if err != nil {
+			fmt.Println("Error getting username")
+		}
+
+		functions.RegisterCommentToDb(userID, postID, commentBody, username)
 		http.Redirect(w, r, "/post/"+postIDStr, http.StatusMovedPermanently)
 	}
 }

@@ -13,41 +13,6 @@ type Post struct {
 	Created string
 }
 
-func RegisterPostToDb(user_id int, postTitle, postBody string) {
-
-	statement, err := db.Prepare("INSERT INTO post(user_id, postTitle, postBody) VALUES(?, ?, ?)")
-	if err != nil {
-		log.Printf("Error preparing data: %v", err)
-		return
-	}
-	defer statement.Close()
-	_, err = statement.Exec(user_id, postTitle, postBody)
-	if err != nil {
-		log.Printf("Error executing data: %v", err)
-		return
-	}
-	fmt.Println("Inserted data into database:", user_id, postTitle, postBody)
-}
-
-func GetCategoriesFromDb() []string {
-	rows, err := db.Query("SELECT text FROM category")
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer rows.Close()
-
-	var categories []string
-
-	for rows.Next() {
-		var categoryText string
-		if err := rows.Scan(&categoryText); err != nil {
-			fmt.Println(err)
-		}
-		categories = append(categories, categoryText)
-	}
-	return categories
-}
-
 func GetPostsFromDb() ([]Post, error) {
 	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created FROM post")
 	if err != nil {
@@ -91,4 +56,20 @@ func GetPostById(postID int) (Post, error) {
 	}
 
 	return post, nil
+}
+
+func RegisterPostToDb(user_id int, postTitle, postBody string) {
+
+	statement, err := db.Prepare("INSERT INTO post(user_id, postTitle, postBody) VALUES(?, ?, ?)")
+	if err != nil {
+		log.Printf("Error preparing data: %v", err)
+		return
+	}
+	defer statement.Close()
+	_, err = statement.Exec(user_id, postTitle, postBody)
+	if err != nil {
+		log.Printf("Error executing data: %v", err)
+		return
+	}
+	fmt.Println("Inserted data into database:", user_id, postTitle, postBody)
 }
