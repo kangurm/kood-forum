@@ -466,6 +466,13 @@ hr {
     color: black
 }
 
-
-
+.login-comment-message {
+    color: grey; 
+    background-color: #f4f4f4; 
+    padding: 10px; 
+    border-radius: 5px; 
+    text-align: center; 
+    margin: 20px 0; 
+    font-size: 1rem; 
+}
 

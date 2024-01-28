@@ -48,11 +48,15 @@
             </div>
             <div class="commentSection">
                 <h3>Comments</h3>
+                {{if .LoggedUser.IsLoggedIn}}
                 <form method="POST" action="/post/comment?post_id={{.Posts.Post_id}}">
                     <textarea type="text" name="comment" class="commentInputBox"
                         placeholder="Write a comment..."></textarea>
                     <button type="submit" class="commentSubmit">Submit</button>
                 </form>
+                {{else}}
+                <p class="login-comment-message">You must log in to comment</p>
+                {{end}}
                 <div class="comments">
                     {{range .Comments}}
                     <div class="comment">
