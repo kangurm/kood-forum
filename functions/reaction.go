@@ -51,7 +51,6 @@ func RemoveReactionFromPost(post_id int, user_id int, reactionToRemove string) e
 		fmt.Println("STUCK 42")
 		return err
 	}
-	fmt.Printf("Deleted reaction for user (%v) on post (%v).\n", user_id, post_id)
 	return nil
 }
 
@@ -74,6 +73,14 @@ func UpdateReactionCount(post_id int, reactionTypeToAdd string, remove bool, rea
 	if reactionTypeToRemove == "" && !remove && reactionTypeToAdd != "" {
 		reactionType = reactionTypeToAdd
 		doRecursive = false
+	}
+
+	var exists bool
+	// Check if reaction count (like_count etc) arent '0' for making sure count doesnt go to negatives.
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ? AND "+reactionType+" = ?)", post_id, 0).Scan(&exists)
+	if remove && exists {
+		fmt.Println("broken here?")
+		return err
 	}
 
 	var template string
@@ -135,38 +142,34 @@ func AddReactionToPost(post_id int, user_id int, like bool, comment bool) {
 		reactionType = "like_count"
 	}
 
+	var exists bool
+	var previousReactionInt int
+	var previousReactionStr string
+
 	if comment {
 		reaction = 2
 		reactionType = "comment_count"
 	}
-
-	var exists bool
-
 	// Check if user has a like/dislike on the post already
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM reaction WHERE post_id = ? AND user_id = ?)", post_id, user_id).Scan(&exists)
 	if err != nil {
-		fmt.Println("STUCK 138")
+		fmt.Println("Error checking if reaction exists")
 	}
-
-	var previousReactionInt int
-	var previousReactionStr string
-
 	// Get user's previous reaction
 	err = db.QueryRow("SELECT reaction_bool FROM reaction WHERE post_id = ? AND user_id = ?", post_id, user_id).Scan(&previousReactionInt)
 	if err != nil {
-		fmt.Println("No previous reaction.")
+		fmt.Println("No previous reaction, proceeding...")
 	}
 
-	// Set previousReactionStr for future operations, check if new reaction is the same as previous and return early if so.
 	if previousReactionInt == 0 {
-		if previousReactionInt == reaction {
-			fmt.Println("Returned cause reaction was same as before")
+		if previousReactionInt == reaction && exists {
+			RemoveReactionFromPost(post_id, user_id, reactionType)
 			return
 		}
 		previousReactionStr = "dislike_count"
 	} else if previousReactionInt == 1 {
-		if previousReactionInt == reaction {
-			fmt.Println("Returned cause reaction was same as before")
+		if previousReactionInt == reaction && exists {
+			RemoveReactionFromPost(post_id, user_id, reactionType)
 			return
 		}
 		previousReactionStr = "like_count"
@@ -174,7 +177,6 @@ func AddReactionToPost(post_id int, user_id int, like bool, comment bool) {
 
 	// If user had like/dislike on the post, remove reaction count from POST table and add a new one, then update entry in REACTION table
 	if exists {
-
 		UpdateReactionCount(post_id, reactionType, true, previousReactionStr)
 
 		statement, err := db.Prepare("UPDATE reaction SET reaction_bool = ? WHERE post_id = ? AND user_id = ?")

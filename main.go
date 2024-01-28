@@ -304,13 +304,21 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	data := functions.BuildResponse(loggedUser, currentPost, currentComments)
 
 	tpl.ExecuteTemplate(w, "post.html", data)
-	fmt.Printf("%+v\n", currentComments)
 }
 
 func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 
-		err := r.ParseForm()
+		loggedUser, err := functions.AuthenticateUser(w, r)
+		if err != nil || loggedUser.Id == 0 {
+			fmt.Println("User is not logged in. To make a comment, the user must be logged in.")
+			//http.Redirect(w, r, "/login?error=signin", http.StatusSeeOther)
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			//http.Redirect(w, r, "/login?next="+r.URL.RequestURI(), http.StatusSeeOther)
+			return
+		}
+
+		err = r.ParseForm()
 		if err != nil {
 			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
 			return
@@ -325,11 +333,6 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			ErrorHandler(w, "Invalid post ID", http.StatusBadRequest)
 			return
-		}
-		loggedUser, err := functions.AuthenticateUser(w, r)
-		if err != nil || loggedUser.Id == 0 {
-			fmt.Println("User is not logged in. To make a comment, the user must be logged in.")
-			http.Redirect(w, r, "/post/", http.StatusTemporaryRedirect)
 		}
 
 		username, err := functions.GetUserByID(loggedUser.Id)
