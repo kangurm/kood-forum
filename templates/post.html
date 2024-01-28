@@ -55,11 +55,15 @@
                 </form>
                 <div class="comments">
                     {{range .Comments}}
-                        <div class="comment">
-                            <p>{{.Username}}</p>
-                            <p>{{.Text}}</p>
-                            <p>Created: {{.Created}}</p>
-                        </div>
+                    <div class="comment">
+                        <span class="commentUsername">{{.Username}}</span>
+                        <p class="commentText">{{.Text}}</p>
+                        <span class="commentDate">Created: {{.Created}}</span>
+                        <div class="commentActions">
+                            <a href="/post/comment/react?comment_id={{.Comment_id}}&action=like" class="commentLikeButton">👍 Like</a>
+                            <a href="/post/comment/react?comment_id={{.Comment_id}}&action=dislike" class="commentDislikeButton">👎 Dislike</a>
+                            </div>
+                    </div>
                     {{end}}
              </div>
         </div>
