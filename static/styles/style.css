@@ -11,6 +11,7 @@ body {
     background-color: #252526;
     max-width: 1920px;
     /* max-height: 1080px; */
+    color: white;
 }
 
 header  {
@@ -245,6 +246,14 @@ hr {
     margin: auto;
     margin-top: 50px;
     background-color: #2d2d30;
+    padding: 20px;
+    flex-direction: column;
+    align-items: center;
+}
+.centerContainer h2 {
+    margin-left: 20px; 
+    color: greenyellow; 
+
 }
 
 .loginForm {
@@ -253,6 +262,8 @@ hr {
     width: 100%;
     align-items: center;
     height: auto;
+    color: greenyellow
+
 }
 
 .loginForm h2 {
@@ -388,15 +399,6 @@ hr {
     gap: 10px;
 }
 
-.commentInputBox {
-    width: 100%;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    resize: vertical;
-    min-height: 80px;
-}
-
 .commentSubmit {
     background-color: greenyellow;
     border: none;
@@ -418,3 +420,59 @@ hr {
 .inline {
     display: inline;
 }
+
+.commentSection {
+    margin-top: 30px;
+    background-color: #626262;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.comment {
+    background-color: #494948;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.commentUsername {
+    font-size: 0.85em;
+    font-weight: bold;
+    color: greenyellow;
+    margin-bottom: 8px;
+}
+
+.commentText {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    color: #E8E8E8;
+}
+
+.commentDate {
+    font-size: 0.75em;
+    text-align: right;
+    font-style: italic;
+    color: #afafaf;
+}
+
+.commentInputBox {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    resize: vertical;
+    min-height: 80px;
+    background-color: white;
+    color: black
+}
+
+.login-comment-message {
+    color: grey; 
+    background-color: #f4f4f4; 
+    padding: 10px; 
+    border-radius: 5px; 
+    text-align: center; 
+    margin: 20px 0; 
+    font-size: 1rem; 
+}
+
