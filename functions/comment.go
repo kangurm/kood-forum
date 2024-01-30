@@ -6,13 +6,15 @@ import (
 )
 
 type Comment struct {
-	Comment_id  string
-	User_id     string
-	Post_id     string
-	Text        string
-	Reaction_id string
-	Created     string
-	Username    string
+	Comment_id   string
+	User_id      string
+	Post_id      string
+	Text         string
+	Reaction_id  string
+	Created      string
+	Username     string
+	LikeCount    int
+	DislikeCount int
 }
 
 func RegisterCommentToDb(user_id int, post_id int, text string, username string) {
@@ -30,7 +32,7 @@ func RegisterCommentToDb(user_id int, post_id int, text string, username string)
 	fmt.Println("Inserted data into database:", user_id, post_id, text)
 }
 func GetCommentsByPostId(post_id int) ([]Comment, error) {
-	rows, err := db.Query("SELECT id, post_id, user_id, text, created, username FROM comment WHERE post_id = ?", post_id)
+	rows, err := db.Query("SELECT id, post_id, user_id, text, created, username, like_count, dislike_count FROM comment WHERE post_id = ?", post_id)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -39,7 +41,7 @@ func GetCommentsByPostId(post_id int) ([]Comment, error) {
 	var comments []Comment
 	for rows.Next() {
 		var comment Comment
-		if err := rows.Scan(&comment.Comment_id, &comment.User_id, &comment.Post_id, &comment.Text, &comment.Created, &comment.Username); err != nil {
+		if err := rows.Scan(&comment.Comment_id, &comment.User_id, &comment.Post_id, &comment.Text, &comment.Created, &comment.Username, &comment.LikeCount, &comment.DislikeCount); err != nil {
 			return nil, err
 		}
 		comments = append(comments, comment)

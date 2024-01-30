@@ -64,8 +64,8 @@
                         <p class="commentText">{{.Text}}</p>
                         <span class="commentDate">Created: {{.Created}}</span>
                         <div class="commentActions">
-                            <a href="/post/react?comment_id={{.Comment_id}}&post_id={{.Post_id}}&action=like" class="commentLikeButton">👍 Like</a>
-                            <a href="/post/react?comment_id={{.Comment_id}}&post_id={{.Post_id}}&action=dislike" class="commentDislikeButton">👎 Dislike</a>
+                            <a href="/post/react?comment_id={{.Comment_id}}&post_id={{.Post_id}}&action=like" class="commentLikeButton">👍 Like ({{.LikeCount}})</a>
+                            <a href="/post/react?comment_id={{.Comment_id}}&post_id={{.Post_id}}&action=dislike" class="commentDislikeButton">👎 Dislike ({{.DislikeCount}})</a>
                             </div>
                     </div>
                     {{end}}

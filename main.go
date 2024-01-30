@@ -304,7 +304,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	data := functions.BuildResponse(loggedUser, currentPost, currentComments)
 
 	tpl.ExecuteTemplate(w, "post.html", data)
-	fmt.Printf("%+v\n", currentComments)
+	// fmt.Printf("%+v\n", currentComments)
 }
 
 func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
@@ -366,7 +366,11 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Comment id: ", comment_id)
 		if err != nil {
 			ErrorHandler(w, "Post might be deleted", http.StatusBadRequest)
-			return
+		}
+
+		forComment := true
+		if comment_id == 0 {
+			forComment = false
 		}
 
 		action := r.URL.Query().Get("action")
@@ -378,13 +382,14 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 			like = false
 		}
 
-		if loggedUser.IsLoggedIn {
-			functions.AddReactionToPost(post_id, loggedUser.Id, like, false)
+		if loggedUser.IsLoggedIn && forComment {
 			functions.AddReactionToComment(comment_id, loggedUser.Id, like)
-
+		} else if loggedUser.IsLoggedIn && forComment == false {
+			functions.AddReactionToPost(post_id, loggedUser.Id, like, false)
 		} else {
 			// TODO: Asenda see error messagiga
 			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+			return
 		}
 		http.Redirect(w, r, "/post/"+postIDStr, http.StatusMovedPermanently)
 	}

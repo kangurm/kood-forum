@@ -16,13 +16,13 @@ type Reaction struct {
 
 func RegisterReactionToDb(post_id int, user_id int, like int) error {
 
-	statement, err := db.Prepare("INSERT INTO reaction(post_id, user_id, reaction_bool) VALUES(?, ?, ?)")
+	statement, err := db.Prepare("INSERT INTO reaction(post_id, user_id, reaction_bool, comment_id) VALUES(?, ?, ?, ?)")
 	if err != nil {
 		log.Printf("Error preparing data: %v", err)
 		return err
 	}
 	defer statement.Close()
-	_, err = statement.Exec(post_id, user_id, like)
+	_, err = statement.Exec(post_id, user_id, like, 0)
 	if err != nil {
 		log.Printf("Error executing data: %v", err)
 		return err
@@ -64,6 +64,7 @@ func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, 
 	doRecursive := true
 
 	// If we only want to remove count and not add a new one.
+
 	if reactionTypeToAdd == "" && remove && reactionTypeToRemove != "" {
 		reactionType = reactionTypeToRemove
 		//tahame ainult ühe korra eemaldada ja lisada pärast ei taha
@@ -207,18 +208,13 @@ func AddReactionToPost(post_id int, user_id int, like bool, comment bool) {
 		if err != nil {
 			fmt.Println("Error updating reaction")
 		}
-		if exists {
-			UpdateReactionCount(post_id, 0, reactionType, true, previousReactionStr)
-
-		}
-
 		// If user doesnt have like/dislike on the post, then add reaction count to POST table and add a new entry to REACTION table.
 	} else {
 		UpdateReactionCount(post_id, 0, reactionType, false, "")
 
 		err := RegisterReactionToDb(post_id, user_id, reaction)
 		if err != nil {
-			fmt.Println("Error registering reaction to db ln187")
+			fmt.Println("Error registering reaction to db ln217")
 		}
 	}
 }
@@ -312,18 +308,13 @@ func AddReactionToComment(comment_id, user_id int, like bool) {
 		if err != nil {
 			fmt.Println("Error updating reaction")
 		}
-		if exists {
-			UpdateReactionCount(comment_id, 0, reactionType, true, previousReactionStr)
-
-		}
-
 		// If user doesnt have like/dislike on the post, then add reaction count to POST table and add a new entry to REACTION table.
 	} else {
 		UpdateReactionCount(comment_id, 0, reactionType, false, "")
 
 		err := RegisterReactionToDb(comment_id, user_id, reaction)
 		if err != nil {
-			fmt.Println("Error registering reaction to db ln187")
+			fmt.Println("Error registering reaction to db ln317")
 		}
 	}
 }
