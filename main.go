@@ -350,25 +350,24 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil || loggedUser.Id == 0 {
-			loggedUser.IsLoggedIn = false
+			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+			return
 		}
 
 		postIDStr := r.URL.Query().Get("post_id")
 		post_id, err := strconv.Atoi(postIDStr)
 		fmt.Println("Post_id: ", post_id)
 		if err != nil {
-			ErrorHandler(w, "Post might be deleted", http.StatusBadRequest)
 			return
 		}
+		forComment := true
 
 		commentIDStr := r.URL.Query().Get("comment_id")
 		comment_id, err := strconv.Atoi(commentIDStr)
 		fmt.Println("Comment id: ", comment_id)
 		if err != nil {
-			ErrorHandler(w, "Post might be deleted", http.StatusBadRequest)
 		}
 
-		forComment := true
 		if comment_id == 0 {
 			forComment = false
 		}
@@ -382,15 +381,12 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 			like = false
 		}
 
-		if loggedUser.IsLoggedIn && forComment {
+		if forComment {
 			functions.AddReactionToComment(comment_id, loggedUser.Id, like)
-		} else if loggedUser.IsLoggedIn && forComment == false {
-			functions.AddReactionToPost(post_id, loggedUser.Id, like, false)
 		} else {
-			// TODO: Asenda see error messagiga
-			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
-			return
+			functions.AddReactionToPost(post_id, loggedUser.Id, like, false)
 		}
-		http.Redirect(w, r, "/post/"+postIDStr, http.StatusMovedPermanently)
+
+		http.Redirect(w, r, "/post/"+postIDStr, http.StatusTemporaryRedirect)
 	}
 }
