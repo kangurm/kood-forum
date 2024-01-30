@@ -6,7 +6,7 @@ import (
 )
 
 type Post struct {
-	Post_id      string
+	Post_id      int
 	User_id      string
 	Title        string
 	Text         string
@@ -14,6 +14,7 @@ type Post struct {
 	LikeCount    int
 	DislikeCount int
 	CommentCount int
+	Categories   []string
 }
 
 func GetPostsFromDb() ([]Post, error) {

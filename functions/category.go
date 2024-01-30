@@ -11,12 +11,6 @@ type Category struct {
 	Created string
 }
 
-// type PostCategory struct {
-// 	ID          int
-// 	Category_id int
-// 	Post_id     int
-// }
-
 func GetAllCategoriesFromDb() ([]Category, error) {
 	rows, err := db.Query("SELECT id, text, created FROM category")
 	if err != nil {
@@ -55,25 +49,22 @@ func RegisterPostCategoriesToDb(post_id int, categoryNames []string) error {
 	return nil
 }
 
-func GetCategoryNamesForPost(post_id int) ([]string, error) {
-	category_ids, err := GetAllCategoryIDsForPost(post_id)
-	if err != nil {
-		return nil, err
-	}
+func GetCategoryNamesForPost(category_ids []int) ([]string, error) {
 	var categoryNames []string
 	for _, category_id := range category_ids {
-		statement, err := db.Query("SELECT text FROM category WHERE id = ?", category_id)
+		rows, err := db.Query("SELECT text FROM category WHERE id = ?", category_id)
 		if err != nil {
 			return nil, err
 		}
-		var categoryName string
-		err = statement.Scan(&categoryName)
-		if err != nil {
-			return nil, err
+		defer rows.Close()
+		for rows.Next() {
+			var categoryName string
+			if err := rows.Scan(&categoryName); err != nil {
+				return nil, err
+			}
+			categoryNames = append(categoryNames, categoryName)
 		}
-		categoryNames = append(categoryNames, categoryName)
 	}
-	fmt.Println(categoryNames)
 	return categoryNames, nil
 }
 
@@ -101,7 +92,7 @@ func GetAllCategoryIDsForPost(post_id int) ([]int, error) {
 	return category_ids, nil
 }
 
-//helper function
+// helper function
 func GetCategoryID(categoryName string) int {
 	category_id := 0
 	err := db.QueryRow("SELECT id FROM category WHERE text = ?", categoryName).Scan(&category_id)

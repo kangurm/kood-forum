@@ -65,10 +65,28 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		posts, err = functions.GetPostsFromDb()
 		if err != nil {
+			fmt.Println(err)
 			w.Header().Set("Content-Type", "text/html")
 			tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
 			return
 		}
+	}
+
+	// Get categories for posts to display them.
+	for i, post := range posts {
+		category_ids, err := functions.GetAllCategoryIDsForPost(post.Post_id)
+		if err != nil {
+			w.Header().Set("Content-Type", "text/html")
+			tpl.ExecuteTemplate(w, "index.html", nil)
+			return
+		}
+		categoryNames, err := functions.GetCategoryNamesForPost(category_ids)
+		if err != nil {
+			w.Header().Set("Content-Type", "text/html")
+			tpl.ExecuteTemplate(w, "index.html", nil)
+			return
+		}
+		posts[i].Categories = categoryNames
 	}
 
 	loggedUser, err := functions.AuthenticateUser(w, r)
