@@ -23,7 +23,9 @@
                 </div>
                 <div class="end">
                     {{if .LoggedUser.IsLoggedIn}}
-                    <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: azure;">{{.LoggedUser.Username}}</h4></h3>
+                    <h3 id="user-info">Welcome, <h4 id="user-info"
+                            class="inline"
+                            style="padding-left: 4px; color: azure;">{{.LoggedUser.Username}}</h4></h3>
                     <span class="padding"></span>
                     <a href="/create-a-post">New Post</a>
                     <span class="padding"></span>
@@ -44,6 +46,18 @@
                 <textarea type="body" name="userPostBodyText" class="inputBox"
                     id="createPostBodyText" placeholder="Text (Required)"
                     maxlength="1500"></textarea>
+                <label for="item-3" class="toggle">Choose a topic!</label>
+                <input type="checkbox" name="one" id="item-3"
+                    class="hide-input">
+                <div class="toggle-el">
+                    <div>
+                        {{range .Category}}
+                        <input type="checkbox" name="categories"
+                            value="{{.Text}}">
+                        <label for="category1">{{.Text}}</label><br>
+                        {{end}}
+                    </div>
+                </div>
                 <input type="submit" value="Create!" id="submit">
             </form>
         </div>

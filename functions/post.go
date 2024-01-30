@@ -76,3 +76,13 @@ func RegisterPostToDb(user_id int, postTitle, postBody string) {
 	}
 	fmt.Println("Inserted data into database:", user_id, postTitle, postBody)
 }
+
+func GetPostByContent(user_id int, postTitle, postBody string) int {
+	var post_id int
+	err := db.QueryRow("SELECT id FROM post WHERE user_id = ? AND postTitle = ? AND postBody = ?", user_id, postTitle, postBody).Scan(&post_id)
+	if err != nil {
+		fmt.Println("EEEE")
+		return 0
+	}
+	return post_id
+}
