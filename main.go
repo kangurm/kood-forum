@@ -355,6 +355,15 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 
 		postIDStr := r.URL.Query().Get("post_id")
 		post_id, err := strconv.Atoi(postIDStr)
+		fmt.Println("Post_id: ", post_id)
+		if err != nil {
+			ErrorHandler(w, "Post might be deleted", http.StatusBadRequest)
+			return
+		}
+
+		commentIDStr := r.URL.Query().Get("comment_id")
+		comment_id, err := strconv.Atoi(commentIDStr)
+		fmt.Println("Comment id: ", comment_id)
 		if err != nil {
 			ErrorHandler(w, "Post might be deleted", http.StatusBadRequest)
 			return
@@ -371,6 +380,8 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 
 		if loggedUser.IsLoggedIn {
 			functions.AddReactionToPost(post_id, loggedUser.Id, like, false)
+			functions.AddReactionToComment(comment_id, loggedUser.Id, like)
+
 		} else {
 			// TODO: Asenda see error messagiga
 			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
