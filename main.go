@@ -356,21 +356,17 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 
 		postIDStr := r.URL.Query().Get("post_id")
 		post_id, err := strconv.Atoi(postIDStr)
-		fmt.Println("Post_id: ", post_id)
+		fmt.Println("Post_id from url: ", post_id)
 		if err != nil {
 			return
 		}
-		forComment := true
 
 		commentIDStr := r.URL.Query().Get("comment_id")
 		comment_id, err := strconv.Atoi(commentIDStr)
-		fmt.Println("Comment id: ", comment_id)
 		if err != nil {
+			fmt.Println("error converting comment_id")
 		}
-
-		if comment_id == 0 {
-			forComment = false
-		}
+		fmt.Println("Comment id from url: ", comment_id)
 
 		action := r.URL.Query().Get("action")
 		var like bool
@@ -381,11 +377,7 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 			like = false
 		}
 
-		if forComment {
-			functions.AddReactionToComment(comment_id, loggedUser.Id, like)
-		} else {
-			functions.AddReactionToPost(post_id, loggedUser.Id, like, false)
-		}
+		functions.AddReaction(post_id, comment_id, loggedUser.Id, like)
 
 		http.Redirect(w, r, "/post/"+postIDStr, http.StatusTemporaryRedirect)
 	}
