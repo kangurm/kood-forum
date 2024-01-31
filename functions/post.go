@@ -6,7 +6,7 @@ import (
 )
 
 type Post struct {
-	Post_id      string
+	Post_id      int
 	User_id      string
 	Title        string
 	Text         string
@@ -14,6 +14,7 @@ type Post struct {
 	LikeCount    int
 	DislikeCount int
 	CommentCount int
+	Categories   []string
 }
 
 func GetPostsFromDb() ([]Post, error) {
@@ -75,4 +76,14 @@ func RegisterPostToDb(user_id int, postTitle, postBody string) {
 		return
 	}
 	fmt.Println("Inserted data into database:", user_id, postTitle, postBody)
+}
+
+func GetPostByContent(user_id int, postTitle, postBody string) int {
+	var post_id int
+	err := db.QueryRow("SELECT id FROM post WHERE user_id = ? AND postTitle = ? AND postBody = ?", user_id, postTitle, postBody).Scan(&post_id)
+	if err != nil {
+		fmt.Println("EEEE")
+		return 0
+	}
+	return post_id
 }

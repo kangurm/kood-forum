@@ -65,10 +65,28 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		posts, err = functions.GetPostsFromDb()
 		if err != nil {
+			fmt.Println(err)
 			w.Header().Set("Content-Type", "text/html")
 			tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
 			return
 		}
+	}
+
+	// Get categories for posts to display them.
+	for i, post := range posts {
+		category_ids, err := functions.GetAllCategoryIDsForPost(post.Post_id)
+		if err != nil {
+			w.Header().Set("Content-Type", "text/html")
+			tpl.ExecuteTemplate(w, "index.html", nil)
+			return
+		}
+		categoryNames, err := functions.GetCategoryNamesForPost(category_ids)
+		if err != nil {
+			w.Header().Set("Content-Type", "text/html")
+			tpl.ExecuteTemplate(w, "index.html", nil)
+			return
+		}
+		posts[i].Categories = categoryNames
 	}
 
 	loggedUser, err := functions.AuthenticateUser(w, r)
@@ -77,7 +95,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		loggedUser.IsLoggedIn = false
 	}
 
-	categories, err := functions.GetCategoriesFromDb()
+	categories, err := functions.GetAllCategoriesFromDb()
 	if err != nil {
 		fmt.Println("Error getting categories: ", err)
 	}
@@ -231,8 +249,13 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			return
 		}
-
-		data := functions.BuildResponse(loggedUser)
+		var posts struct{}
+		var comments struct{}
+		categories, err := functions.GetAllCategoriesFromDb()
+		if err != nil {
+			fmt.Println("Error getting categories")
+		}
+		data := functions.BuildResponse(loggedUser, posts, comments, categories)
 		tpl.ExecuteTemplate(w, "create-a-post.html", data)
 		return
 	}
@@ -246,6 +269,8 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 
 		postTitle := r.FormValue("userPostTitle")
 		postBody := r.FormValue("userPostBodyText")
+		categories := r.Form["categories"]
+		fmt.Println(categories)
 
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil || loggedUser.Id == 0 {
@@ -255,6 +280,9 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		functions.RegisterPostToDb(loggedUser.Id, postTitle, postBody)
+		post_id := functions.GetPostByContent(loggedUser.Id, postTitle, postBody)
+		fmt.Println(post_id)
+		functions.RegisterPostCategoriesToDb(post_id, categories)
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 }
@@ -304,7 +332,6 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	data := functions.BuildResponse(loggedUser, currentPost, currentComments)
 
 	tpl.ExecuteTemplate(w, "post.html", data)
-	// fmt.Printf("%+v\n", currentComments)
 }
 
 func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {

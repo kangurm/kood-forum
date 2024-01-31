@@ -1,10 +1,11 @@
 package functions
 
 type WrapperStruct struct {
-	LoggedUser interface{}
-	Posts      interface{}
-	Comments   interface{}
-	Category   interface{}
+	LoggedUser   interface{}
+	Posts        interface{}
+	Comments     interface{}
+	Category     interface{}
+	PostCategory interface{}
 	// Add more if needed
 }
 
@@ -23,7 +24,8 @@ func BuildResponse(data ...interface{}) interface{} {
 			wrapper.Comments = d
 		case 3:
 			wrapper.Category = d
-			// Add more cases if needed
+		case 4:
+			wrapper.PostCategory = d
 		}
 	}
 

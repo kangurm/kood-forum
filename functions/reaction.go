@@ -77,6 +77,14 @@ func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, 
 		doRecursive = false
 	}
 
+	var exists bool
+	// Check if reaction count (like_count etc) arent '0' for making sure count doesnt go to negatives.
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ? AND "+reactionType+" = ?)", post_id, 0).Scan(&exists)
+	if remove && exists {
+		fmt.Println("broken here?")
+		return err
+	}
+
 	var template string
 	var postOrComment int
 
@@ -172,7 +180,6 @@ func AddReaction(post_id int, comment_id int, user_id int, like bool) {
 		fmt.Println("No previous reaction to select.")
 	}
 
-	// Set previousReactionStr for future operations, check if new reaction is the same as previous and return early if so.
 	if previousReactionInt == 0 {
 		if previousReactionInt == reaction && exists {
 			RemoveReaction(post_id, comment_id, user_id, reactionType)
