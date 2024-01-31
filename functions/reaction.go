@@ -78,19 +78,17 @@ func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, 
 	}
 
 	var exists bool
-	// Check if reaction count (like_count etc) arent '0' for making sure count doesnt go to negatives.
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ? AND "+reactionType+" = ?)", post_id, 0).Scan(&exists)
-	if remove && exists {
-		fmt.Println("broken here?")
-		return err
-	}
-
+	
 	var template string
 	var postOrComment int
-
+	
 	// Siis see tahendab et anname commentile reactioni
 	if comment_id != 0 {
-		if remove {
+		err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id = ? AND "+reactionType+" = ?)", comment_id, 0).Scan(&exists)
+		if remove && exists {
+			fmt.Println("Returned early from comment, because remove and like_count(dislike_count) = 0")
+			return err
+		}else if remove {
 			// template: ("UPDATE comment SET like_count = like_count - 1 WHERE id = ?")
 			template = "UPDATE comment SET " + reactionTypeToRemove + " = " + reactionTypeToRemove + " - 1 WHERE id = ?"
 			reactionType = reactionTypeToRemove
@@ -105,7 +103,11 @@ func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, 
 
 	// siis anname postile reactioni
 	if comment_id == 0 {
-		if remove {
+		err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ? AND "+reactionType+" = ?)", post_id, 0).Scan(&exists)
+		if remove && exists {
+			fmt.Println("Returned early from post, because remove and like_count(dislike_count) = 0")
+			return err
+		}else if remove {
 			// template: ("UPDATE post SET like_count = like_count - 1 WHERE id = ?")
 			template = "UPDATE post SET " + reactionTypeToRemove + " = " + reactionTypeToRemove + " - 1 WHERE id = ?"
 			reactionType = reactionTypeToRemove
@@ -169,13 +171,16 @@ func AddReaction(post_id int, comment_id int, user_id int, like bool) {
 	var exists bool
 
 	// Check if user has a like/dislike on the post already
-	db.QueryRow("SELECT EXISTS(SELECT 1 FROM reaction WHERE post_id = ? AND comment_id = ? AND user_id = ?)", post_id, comment_id, user_id).Scan(&exists)
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM reaction WHERE post_id = ? AND comment_id = ? AND user_id = ?)", post_id, comment_id, user_id).Scan(&exists)
+	if err != nil {
+		fmt.Println("Ei leidnud databaasist eelmist reaktsiooni")
+	}
 
 	var previousReactionInt int
 	var previousReactionStr string
 
 	// Get user's previous reaction
-	err := db.QueryRow("SELECT reaction_bool FROM reaction WHERE post_id = ? AND comment_id = ? AND user_id = ?", post_id, comment_id, user_id).Scan(&previousReactionInt)
+	err = db.QueryRow("SELECT reaction_bool FROM reaction WHERE post_id = ? AND comment_id = ? AND user_id = ?", post_id, comment_id, user_id).Scan(&previousReactionInt)
 	if err != nil {
 		fmt.Println("No previous reaction to select.")
 	}
