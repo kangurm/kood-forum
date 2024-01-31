@@ -14,23 +14,6 @@ type Reaction struct {
 	Created     string
 }
 
-// func RegisterPostReactionToDb(post_id int, user_id int, like int) error {
-
-// 	statement, err := db.Prepare("INSERT INTO reaction(post_id, user_id, reaction_bool, comment_id) VALUES(?, ?, ?, ?)")
-// 	if err != nil {
-// 		log.Printf("Error preparing data: %v", err)
-// 		return err
-// 	}
-// 	defer statement.Close()
-// 	_, err = statement.Exec(post_id, user_id, like, 0)
-// 	if err != nil {
-// 		log.Printf("Error executing data: %v", err)
-// 		return err
-// 	}
-// 	fmt.Println("Inserted reaction data into database:", post_id, user_id, like)
-// 	return nil
-// }
-
 func RegisterReactionToDb(post_id int, comment_id int, user_id int, like int) error {
 	statement, err := db.Prepare("INSERT INTO reaction(post_id, comment_id, user_id, reaction_bool) VALUES(?, ?, ?, ?)")
 	if err != nil {
@@ -217,7 +200,7 @@ func AddReaction(post_id int, comment_id int, user_id int, like bool) {
 			fmt.Println("Error updating reaction")
 		}
 
-	// If user doesnt have like/dislike on the post, then add reaction count to POST table and add a new entry to REACTION table.
+		// If user doesnt have like/dislike on the post, then add reaction count to POST table and add a new entry to REACTION table.
 	} else {
 		UpdateReactionCount(post_id, comment_id, reactionType, false, "")
 
@@ -227,67 +210,3 @@ func AddReaction(post_id int, comment_id int, user_id int, like bool) {
 		}
 	}
 }
-
-// func AddReactionToComment(post_id int, comment_id int, user_id int, like bool) {
-// 	reaction := 0
-// 	reactionType := "dislike_count"
-// 	if like {
-// 		reaction = 1
-// 		reactionType = "like_count"
-// 	}
-
-// 	var exists bool
-
-// 	// Check if user has a like/dislike on the comment already
-// 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM reaction WHERE comment_id = ? AND user_id = ?)", comment_id, user_id).Scan(&exists)
-// 	if err != nil {
-// 		fmt.Println("STUCK 138")
-// 	}
-
-// 	var previousReactionInt int
-// 	var previousReactionStr string
-
-// 	// Get user's previous reaction
-// 	err = db.QueryRow("SELECT reaction_bool FROM reaction WHERE comment_id = ? AND user_id = ?", comment_id, user_id).Scan(&previousReactionInt)
-// 	if err != nil {
-// 		fmt.Println("No previous reaction.")
-// 	}
-
-// 	// Set previousReactionStr for future operations, check if new reaction is the same as previous and return early if so.
-// 	if previousReactionInt == 0 {
-// 		if previousReactionInt == reaction && exists {
-// 			RemoveReactionFromComment(comment_id, user_id, reactionType)
-// 			return
-// 		}
-// 		previousReactionStr = "dislike_count"
-// 	} else if previousReactionInt == 1 {
-// 		if previousReactionInt == reaction && exists {
-// 			RemoveReactionFromComment(comment_id, user_id, reactionType)
-// 			return
-// 		}
-// 		previousReactionStr = "like_count"
-// 	}
-
-// 	// If user had like/dislike on the post, remove reaction count from POST table and add a new one, then update entry in REACTION table
-// 	if exists {
-
-// 		UpdateReactionCount(0, comment_id, reactionType, true, previousReactionStr)
-
-// 		statement, err := db.Prepare("UPDATE reaction SET reaction_bool = ? WHERE comment_id = ? AND user_id = ?")
-// 		if err != nil {
-// 			fmt.Println("Error preparing update reaction")
-// 		}
-// 		_, err = statement.Exec(reaction, comment_id, user_id)
-// 		if err != nil {
-// 			fmt.Println("Error updating reaction")
-// 		}
-// 		// If user doesnt have like/dislike on the post, then add reaction count to POST table and add a new entry to REACTION table.
-// 	} else {
-// 		UpdateReactionCount(0, comment_id, reactionType, false, "")
-
-// 		err := RegisterCommentReactionToDb(post_id, comment_id, user_id, reaction)
-// 		if err != nil {
-// 			fmt.Println("Error registering reaction to db ln317")
-// 		}
-// 	}
-// }

@@ -41,7 +41,7 @@ func GetCommentsByPostId(post_id int) ([]Comment, error) {
 	var comments []Comment
 	for rows.Next() {
 		var comment Comment
-		if err := rows.Scan(&comment.Comment_id, &comment.User_id, &comment.Post_id, &comment.Text, &comment.Created, &comment.Username, &comment.LikeCount, &comment.DislikeCount); err != nil {
+		if err := rows.Scan(&comment.Comment_id, &comment.Post_id, &comment.User_id, &comment.Text, &comment.Created, &comment.Username, &comment.LikeCount, &comment.DislikeCount); err != nil {
 			return nil, err
 		}
 		comments = append(comments, comment)
