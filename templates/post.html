@@ -7,7 +7,7 @@
         <title>Post Detail</title>
     </head>
     <body>
-        <header>
+        <header>    
             <nav class="fixedContainer">
                 <div class="start">
                     <div class="menuIcon">
@@ -16,10 +16,6 @@
                         <div class="menuIconBars"></div>
                     </div>
                     <a id="homeArticle" href="/">Home</a>
-                </div>
-                <div class="middle">
-                    <input class="searchBar" type="search"
-                        placeholder="Search...">
                 </div>
                 <div class="end">
                     {{if .LoggedUser.IsLoggedIn}}
@@ -35,10 +31,12 @@
             </nav>
         </header>
         <div class="postContainer">
+            <span class="postUsername">{{.Posts.Username}}</span>
             <div class="postHeader">
                 <h1 class="postTitle">{{.Posts.Title}}</h1>
             </div>
             <div class="postBody">{{.Posts.Text}}</div>
+            <div class="postDate">Posted on: {{.Posts.Created}}</div>
             <div class="postActions">
                 <a href="/post/react?post_id={{.Posts.Post_id}}&action=like"
                     class="likeButton">👍 Like ({{.Posts.LikeCount}})</a>

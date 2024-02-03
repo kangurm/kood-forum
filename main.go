@@ -279,7 +279,11 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 		}
 
-		functions.RegisterPostToDb(loggedUser.Id, postTitle, postBody)
+		username, err := functions.GetUserByID(loggedUser.Id)
+		if err != nil {
+			fmt.Println("Error getting username")
+		}
+		functions.RegisterPostToDb(loggedUser.Id, postTitle, postBody, username)
 		post_id := functions.GetPostByContent(loggedUser.Id, postTitle, postBody)
 		fmt.Println(post_id)
 		functions.RegisterPostCategoriesToDb(post_id, categories)
