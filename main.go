@@ -114,10 +114,14 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil {
 			loggedUser.IsLoggedIn = false
+			data := functions.BuildResponse(loggedUser)
+			tpl.ExecuteTemplate(w, "register.html", data)
+			return
 		}
-		data := functions.BuildResponse(loggedUser)
-		tpl.ExecuteTemplate(w, "register.html", data)
+		fmt.Println("User is already logged in, redirecting to index.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+
 	}
 	if r.Method == "POST" {
 		err := r.ParseForm()
@@ -211,7 +215,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		functions.StoreSessionInDb(sessionID, *user)
+		err = functions.StoreSessionInDb(sessionID, *user)
+		if err != nil {
+			fmt.Println("OI EI", err)
+		}
 
 		cookieName := "forum"
 
@@ -222,13 +229,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
+	functions.NoCacheHeaders(w)
+	fmt.Println("ERROR in logoutHandler 223")
 	loggedUser, err := functions.AuthenticateUser(w, r)
 	if err != nil || loggedUser.Id == 0 {
 		fmt.Println(err)
+		fmt.Println("Error in logoutHandler 237")
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 		return
 	}
 
+	fmt.Println("Error in logoutHandler 242", loggedUser.Id)
 	err = functions.DeleteSessionFromDb(loggedUser.Id)
 	if err != nil {
 		fmt.Println(err)
@@ -238,6 +249,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	functions.RemoveCookieFromClient(w)
 	fmt.Printf("Deleted %v's session", loggedUser.Id)
 	http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+	w.WriteHeader(301)
 }
 
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -279,7 +291,11 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 		}
 
-		functions.RegisterPostToDb(loggedUser.Id, postTitle, postBody)
+		username, err := functions.GetUserByID(loggedUser.Id)
+		if err != nil {
+			fmt.Println("Error getting username")
+		}
+		functions.RegisterPostToDb(loggedUser.Id, postTitle, postBody, username)
 		post_id := functions.GetPostByContent(loggedUser.Id, postTitle, postBody)
 		fmt.Println(post_id)
 		functions.RegisterPostCategoriesToDb(post_id, categories)
@@ -303,28 +319,39 @@ func ErrorHandler(w http.ResponseWriter, s string, i int) {
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	functions.NoCacheHeaders(w)
-
-	if !strings.HasPrefix(r.URL.Path, "/post/") {
-		ErrorHandler(w, "Status not found", http.StatusNotFound)
+	parts := strings.Split(r.URL.Path, "/")
+	postID := parts[2]
+	fmt.Printf("PostID:%s\n", postID)
+	post_id, err := strconv.Atoi(postID)
+	if err != nil {
+		fmt.Println("error in string conversion to int. 326")
+	}
+	postExists, err := functions.CheckIfPostExists(post_id)
+	if err != nil {
+		fmt.Println("error checking postID from database")
 		return
+	}
+	if postExists {
+		fmt.Println("Post exists")
+	} else {
+		fmt.Println("Post do not exist")
+		ErrorHandler(w, "Page not found", http.StatusNotFound)
+		return
+	}
+
+	currentPost, err := functions.GetPostById(post_id)
+	if err != nil {
+		fmt.Println("Error getting post info from database")
+		ErrorHandler(w, "Server internal error", http.StatusInternalServerError)
+
 	}
 
 	loggedUser, err := functions.AuthenticateUser(w, r)
 	if err != nil || loggedUser.Id == 0 {
 		loggedUser.IsLoggedIn = false
+
 	}
 
-	postID := strings.TrimPrefix(r.URL.Path, "/post/")
-	post_id, err := strconv.Atoi(postID)
-	if err != nil {
-		fmt.Println("Error converting id from string to int")
-		ErrorHandler(w, "Internal server error", http.StatusInternalServerError)
-	}
-	currentPost, err := functions.GetPostById(post_id)
-	if err != nil {
-		fmt.Println("Error getting post info from database")
-		ErrorHandler(w, "Internal server error", http.StatusInternalServerError)
-	}
 	currentComments, err := functions.GetCommentsByPostId(post_id)
 	if err != nil {
 		fmt.Println("Error getting comment info from database")

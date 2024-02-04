@@ -88,6 +88,8 @@ func GetUserIdFromSession(sessionID string) (int, error) {
 
 func DeleteSessionFromDb(user_id int) error {
 
+	fmt.Println("User id: ", user_id)
+
 	statement, err := db.Prepare("DELETE FROM session WHERE user_id = ?")
 	if err != nil {
 		return err
@@ -142,4 +144,5 @@ func NoCacheHeaders(w http.ResponseWriter) {
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	w.Header().Set("Pragma", "no-cache")
 	w.Header().Set("Expires", "0")
+	w.Header().Set("Vary", "*")
 }

@@ -17,10 +17,6 @@
                     </div>
                     <a id="homeArticle" href="/">Home</a>
                 </div>
-                <div class="middle">
-                    <input class="searchBar" type="search"
-                        placeholder="Search...">
-                </div>
                 <div class="end">
                     {{if .LoggedUser.IsLoggedIn}}
                     <h3 id="user-info">Welcome, <h4 id="user-info"
@@ -54,7 +50,6 @@
                 <div class="navbar">
                     <a id="topButton" class="sortButtons"
                         href="/?sort=top">Top</a>
-                    <button id="hotButton" class="sortButtons">Hot</button>
                     <button id="newButton" class="sortButtons">New</button>
                 </div>
                 <div class="contentMenu">
@@ -62,9 +57,9 @@
                     <a class="noEffectArticle" href="/post/{{.Post_id}}">
                         <div class="postBar">
                             <div class="likeDiv">
-                                <span class="postLikes">{{.LikeCount}}</span>
+                                <span class="postLikes">👍{{.LikeCount}}</span>
                                 <span
-                                    class="postDislikes">{{.DislikeCount}}</span>
+                                    class="postDislikes">👎{{.DislikeCount}}</span>
                             </div>
                             <h2 class="postTitle">{{.Title}}</h2>
                             <div>
@@ -75,11 +70,6 @@
                         </div>
                     </a>
                     {{end}}
-                    <div class="pageContainer">
-                        <a>1</a>
-                        <a>2</a>
-                        <a>3</a>
-                    </div>
                 </div>
             </div>
         </div>
