@@ -6,13 +6,14 @@ import (
 )
 
 type Category struct {
-	ID      string
+	ID      int
 	Text    string
+	URL     string
 	Created string
 }
 
 func GetAllCategoriesFromDb() ([]Category, error) {
-	rows, err := db.Query("SELECT id, text, created FROM category")
+	rows, err := db.Query("SELECT id, text, url, created FROM category")
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +23,7 @@ func GetAllCategoriesFromDb() ([]Category, error) {
 
 	for rows.Next() {
 		var category Category
-		if err := rows.Scan(&category.ID, &category.Text, &category.Created); err != nil {
+		if err := rows.Scan(&category.ID, &category.Text, &category.URL, &category.Created); err != nil {
 			return nil, err
 		}
 		categories = append(categories, category)
@@ -100,4 +101,72 @@ func GetCategoryID(categoryName string) int {
 		fmt.Println("No previous reaction, proceeding...")
 	}
 	return category_id
+}
+
+func DoesCategoryExist(categoryURL string) bool {
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE url = ?)", categoryURL).Scan(&exists)
+	if err != nil {
+		fmt.Println("Didnt find category from database.")
+		return false
+	}
+	return exists
+}
+
+func GetCurrentCategory(categoryURL string) (Category, error) {
+	var currentCategory Category
+	err := db.QueryRow("SELECT id, text, url, created FROM category WHERE url = ?", categoryURL).Scan(&currentCategory.ID, &currentCategory.Text, &currentCategory.URL, &currentCategory.Created)
+	if err != nil {
+		return Category{}, err
+	}
+	return currentCategory, nil
+}
+
+func GetAllPostIDsByCategory(category_id int) ([]int, error) {
+	rows, err := db.Query("SELECT post_id FROM post_category WHERE category_id = ?", category_id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer rows.Close()
+
+	var category_ids []int
+
+	for rows.Next() {
+		var id int
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		category_ids = append(category_ids, id)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return category_ids, nil
+}
+
+func GetAllPostsByPostIDs(post_ids []int) ([]Post, error) {
+	var posts []Post
+
+	for _, post_id := range post_ids {
+		rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created, like_count, dislike_count, comment_count FROM post WHERE id = ?", post_id)
+		if err != nil {
+			return []Post{}, err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var post Post
+			if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created, &post.LikeCount, &post.DislikeCount, &post.CommentCount); err != nil {
+				return nil, err
+			}
+			posts = append(posts, post)
+		}
+
+		if err := rows.Err(); err != nil {
+			return nil, err
+		}
+	}
+	return posts, nil
 }
