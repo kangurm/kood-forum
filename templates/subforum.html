@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel='stylesheet' href='/static/styles/style.css'>
-        <title>Forum</title>
+        <title>MONKA</title>
     </head>
     <body>
         <header>
@@ -53,9 +53,9 @@
             <div class="main" style="width: 100%;">
                 <div class="navbar">
                     <a id="topButton" class="sortButtons"
-                        href="/?sort=top">Top</a>
+                        href="/{{.CurrentCategory.URL}}?sort=top">Top</a>
                     <a id="topButton" class="sortButtons"
-                        href="/?sort=new">New</a>
+                        href="/{{.CurrentCategory.URL}}?sort=new">New</a>
                 </div>
                 <div class="contentMenu">
                     {{range .Posts}}

@@ -5,7 +5,7 @@ type WrapperStruct struct {
 	Posts        interface{}
 	Comments     interface{}
 	Category     interface{}
-	PostCategory interface{}
+	CurrentCategory interface{}
 	// Add more if needed
 }
 
@@ -25,7 +25,7 @@ func BuildResponse(data ...interface{}) interface{} {
 		case 3:
 			wrapper.Category = d
 		case 4:
-			wrapper.PostCategory = d
+			wrapper.CurrentCategory = d
 		}
 	}
 

@@ -39,6 +39,15 @@ func main() {
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	functions.NoCacheHeaders(w)
 
+	parts := strings.Split(r.URL.Path, "/")
+	categoryURL := parts[1]
+	fmt.Println(categoryURL)
+	bCategoryExists := functions.DoesCategoryExist(categoryURL)
+	if bCategoryExists {
+		CategoryHandler(w, r, categoryURL)
+		return
+	}
+
 	if r.URL.Path != "/" {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
 		return
@@ -49,27 +58,24 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Posts sorting logic
-	var posts []functions.Post
-	var err error
+	posts, err := functions.GetPostsFromDb()
+	if err != nil {
+		fmt.Println(err)
+	}
 	action := r.URL.Query().Get("sort")
 	switch action {
 	case "top":
-		posts, err = functions.SortByTop()
+		posts, err = functions.SortByTop(posts)
 		if err != nil {
 			fmt.Println("Error sorting")
 		}
 	case "new":
-		functions.SortByNew()
-	case "hot":
-		functions.SortByHot()
-	default:
-		posts, err = functions.GetPostsFromDb()
+		posts, err = functions.SortByNew(posts)
 		if err != nil {
-			fmt.Println(err)
-			w.Header().Set("Content-Type", "text/html")
-			tpl.ExecuteTemplate(w, "index.html", nil) //replace nil with data
-			return
+			fmt.Println("Error sorting")
 		}
+	default:
+		fmt.Println("No sort done.")
 	}
 
 	// Get categories for posts to display them.
@@ -408,4 +414,56 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 
 		http.Redirect(w, r, "/post/"+postIDStr, http.StatusTemporaryRedirect)
 	}
+}
+
+func CategoryHandler(w http.ResponseWriter, r *http.Request, categoryURL string) {
+	currentCategory, err := functions.GetCurrentCategory(categoryURL)
+	if err != nil {
+		fmt.Println("Error getting current category.")
+		return
+	}
+	fmt.Println("CurrentCategory: ", currentCategory)
+	postIDs, err := functions.GetAllPostIDsByCategory(currentCategory.ID)
+	if err != nil {
+		fmt.Println("Error getting post ids by category.")
+		return
+	}
+	posts, err := functions.GetAllPostsByPostIDs(postIDs)
+	if err != nil {
+		fmt.Println("Error getting posts structs for category")
+		return
+	}
+
+	action := r.URL.Query().Get("sort")
+	switch action {
+	case "top":
+		posts, err = functions.SortByTop(posts)
+		if err != nil {
+			fmt.Println("Error sorting")
+		}
+	case "new":
+		posts, err = functions.SortByNew(posts)
+		if err != nil {
+			fmt.Println("Error sorting")
+		}
+	default:
+		fmt.Println("No sort done.")
+	}
+
+	loggedUser, err := functions.AuthenticateUser(w, r)
+	if err != nil {
+		fmt.Println("Error authenticating user")
+		loggedUser.IsLoggedIn = false
+	}
+
+	categories, err := functions.GetAllCategoriesFromDb()
+	if err != nil {
+		fmt.Println("Error getting categories")
+		return
+	}
+
+	var comments struct{}
+
+	data := functions.BuildResponse(loggedUser, posts, comments, categories, currentCategory)
+	tpl.ExecuteTemplate(w, "subforum.html", data)
 }
