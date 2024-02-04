@@ -46,7 +46,9 @@ func GetPostById(postID int) (Post, error) {
 	log.Printf("Fetching post with ID: %d", postID)
 	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created, like_count, dislike_count, comment_count, username FROM post WHERE id = ?", postID)
 	if err != nil {
+		fmt.Println("aiaiai")
 		return Post{}, err
+
 	}
 	defer rows.Close()
 
@@ -88,4 +90,14 @@ func GetPostByContent(user_id int, postTitle, postBody string) int {
 		return 0
 	}
 	return post_id
+}
+
+func CheckIfPostExists(postID int) (bool, error) {
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ?)", postID).Scan(&exists)
+	if err != nil {
+		fmt.Println("Error in checkIfPostExists line 102")
+		return exists, err
+	}
+	return exists, nil
 }
