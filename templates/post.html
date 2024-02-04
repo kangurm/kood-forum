@@ -7,7 +7,7 @@
         <title>Post Detail</title>
     </head>
     <body>
-        <header>    
+        <header>
             <nav class="fixedContainer">
                 <div class="start">
                     <div class="menuIcon">
@@ -19,7 +19,9 @@
                 </div>
                 <div class="end">
                     {{if .LoggedUser.IsLoggedIn}}
-                    <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: azure;">{{.LoggedUser.Username}}</h4></h3>
+                    <h3 id="user-info">Welcome, <h4 id="user-info"
+                            class="inline"
+                            style="padding-left: 4px; color: azure;">{{.LoggedUser.Username}}</h4></h3>
                     <span class="padding"></span>
                     <a href="/create-a-post">New Post</a>
                     <span class="padding"></span>
@@ -38,17 +40,22 @@
             <div class="postBody">{{.Posts.Text}}</div>
             <div class="postDate">Posted on: {{.Posts.Created}}</div>
             <div class="postActions">
-                <a href="/post/react?post_id={{.Posts.Post_id}}&action=like"
+                <a
+                    href="/post/{{.Posts.Post_id}}?post_id={{.Posts.Post_id}}&action=like"
                     class="likeButton">👍 Like ({{.Posts.LikeCount}})</a>
-                <a href="/post/react?post_id={{.Posts.Post_id}}&action=dislike"
+                <a
+                    href="/post/{{.Posts.Post_id}}?post_id={{.Posts.Post_id}}&action=dislike"
                     class="dislikeButton">👎 Dislike
                     ({{.Posts.DislikeCount}})</a>
             </div>
             <div class="commentSection">
                 <h3>Comments</h3>
                 {{if .LoggedUser.IsLoggedIn}}
-                <form method="POST" action="/post/comment?post_id={{.Posts.Post_id}}">
+                <form method="POST"
+                    action="/post/comment?post_id={{.Posts.Post_id}}">
                     <textarea type="text" name="comment" class="commentInputBox"
+                        required minlength="2" maxlength="5000" rows="5"
+                        wrap="hard"
                         placeholder="Write a comment..."></textarea>
                     <button type="submit" class="commentSubmit">Submit</button>
                 </form>
@@ -62,12 +69,30 @@
                         <p class="commentText">{{.Text}}</p>
                         <span class="commentDate">Created: {{.Created}}</span>
                         <div class="commentActions">
-                            <a href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=like" class="commentLikeButton">👍 Like ({{.LikeCount}})</a>
-                            <a href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=dislike" class="commentDislikeButton">👎 Dislike ({{.DislikeCount}})</a>
-                            </div>
+                            <a
+                                href="/post/{{.Post_id}}?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=like"
+                                class="commentLikeButton">👍 Like
+                                ({{.LikeCount}})</a>
+                            <a
+                                href="/post/{{.Post_id}}?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=dislike"
+                                class="commentDislikeButton">👎 Dislike
+                                ({{.DislikeCount}})</a>
+                        </div>
                     </div>
                     {{end}}
-             </div>
-        </div>
-    </body>
-</html>
+                </div>
+            </div>
+        </body>
+        <script>
+            const tx = document.getElementsByTagName("textarea");
+            for (let i = 0; i < tx.length; i++) {
+              tx[i].setAttribute("style", "height:" + (tx[i].scrollHeight) + "px;overflow-y:hidden;");
+              tx[i].addEventListener("input", OnInput, false);
+            }
+    
+            function OnInput() {
+              this.style.height = 0;
+              this.style.height = (this.scrollHeight) + "px";
+            }
+        </script>
+    </html>

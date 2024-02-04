@@ -29,7 +29,6 @@ func main() {
 	http.HandleFunc("/register", RegisterHandler)
 	http.HandleFunc("/logout", LogoutHandler)
 	http.HandleFunc("/create-a-post", CreateAPostHandler)
-	http.HandleFunc("/post/react", ReactionHandler)
 	http.HandleFunc("/post/comment", CreateACommentHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -349,7 +348,18 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Error getting post info from database")
 		ErrorHandler(w, "Server internal error", http.StatusInternalServerError)
+	}
 
+	action := r.URL.Query().Get("action")
+	if action != "" {
+		ReactionHandler(w, r)
+		return
+	}
+
+	commentIDs := r.URL.Query().Get("comment_id")
+	if commentIDs != "" {
+		ReactionHandler(w, r)
+		return
 	}
 
 	loggedUser, err := functions.AuthenticateUser(w, r)
@@ -418,7 +428,7 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 		post_id, err := strconv.Atoi(postIDStr)
 		fmt.Println("Post_id from url: ", post_id)
 		if err != nil {
-			return
+			fmt.Println("Error converting post_id")
 		}
 
 		commentIDStr := r.URL.Query().Get("comment_id")
@@ -433,8 +443,10 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 		switch action {
 		case "like":
 			like = true
+			fmt.Println("LIKEEE")
 		case "dislike":
 			like = false
+			fmt.Println("DISLIKEEE")
 		}
 
 		functions.AddReaction(post_id, comment_id, loggedUser.Id, like)

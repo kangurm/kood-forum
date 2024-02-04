@@ -37,17 +37,22 @@
                 <h3 class="h3title">Create a post</h3>
                 <hr class="solidHR">
                 <textarea type="text" name="userPostTitle" class="inputBox"
-                    maxlength="40" id="userPostTitle"
+                    maxlength="30" minlength="5" data-limit-rows="true" rows="1"
+                    required
+                    id="userPostTitle"
                     placeholder="Title" contenteditable></textarea>
                 <textarea type="body" name="userPostBodyText" class="inputBox"
-                    id="createPostBodyText" placeholder="Text (Required)"
+                    id="createPostBodyText" required minlength="5"
+                    placeholder="Text (Required)"
                     maxlength="1500"></textarea>
                 <label for="item-3" class="toggle">Choose a topic!</label>
-                <input type="checkbox" name="one" id="item-3" class="hide-input" checked>
+                <input type="checkbox" name="one" id="item-3" class="hide-input"
+                    checked>
                 <div class="toggle-el">
                     <div>
                         {{range .Category}}
-                        <input type="checkbox" name="categories" value="{{.Text}}">
+                        <input type="checkbox" name="categories"
+                            value="{{.Text}}">
                         <label for="category1">{{.Text}}</label><br>
                         {{end}}
                     </div>
