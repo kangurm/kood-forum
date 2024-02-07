@@ -20,7 +20,7 @@ func main() {
 	defer functions.CloseDb()
 	tpl, err = template.ParseGlob("templates/*.html")
 	if err != nil {
-		log.Fatalf("Error parsing remplates: %v", err)
+		log.Fatalf("Error parsing templates: %v", err)
 	}
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
@@ -460,7 +460,16 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request, categoryURL string)
 		fmt.Println("Error getting posts structs for category")
 		return
 	}
+	if len(posts) == 0 {
+		fmt.Println("There are no posts with this category")
+		data := map[string]interface{}{
+			"NoPosts": true,
+		}
+		fmt.Println(data)
+		tpl.ExecuteTemplate(w, "subforum.html", data)
+		return
 
+	}
 	action := r.URL.Query().Get("sort")
 	switch action {
 	case "top":

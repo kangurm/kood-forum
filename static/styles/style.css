@@ -555,3 +555,10 @@ label.toggle {
     color: #000; 
     font-size: 0.9rem;
 }
+
+.noPostsMessage {
+    color: #ff6347; /* Tomato red color */
+    font-size: 1.2rem;
+    text-align: left;
+    margin: 20px 0 20px 10px;
+}
