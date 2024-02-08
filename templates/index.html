@@ -9,14 +9,16 @@
     <body>
         <header>
             <nav class="fixedContainer">
-                <div class="start">
+                <div class="logo-and-home">
                     <div class="menuIcon">
                         <div class="menuIconBars"></div>
                         <div class="menuIconBars"></div>
                         <div class="menuIconBars"></div>
                     </div>
+                    <img src="/static/styles/Logo1.jpeg" alt="Logo" class="logo">
                     <a id="homeArticle" href="/">Home</a>
                 </div>
+                <h1 class="forumtitle">Märgatud Kood/Jõhvis</h1>
                 <div class="end">
                     {{if .LoggedUser.IsLoggedIn}}
                     <h3 id="user-info">Welcome, <h4 id="user-info"

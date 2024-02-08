@@ -410,7 +410,11 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil || loggedUser.Id == 0 {
-			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+			fmt.Println("Log in to add reaction")
+			loggedUser.IsLoggedIn = false
+			loggedUser.ErrorMessage = "Log in to add reaction"
+			data := functions.BuildResponse(loggedUser)
+			tpl.ExecuteTemplate(w, "login.html", data)
 			return
 		}
 
@@ -460,16 +464,7 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request, categoryURL string)
 		fmt.Println("Error getting posts structs for category")
 		return
 	}
-	if len(posts) == 0 {
-		fmt.Println("There are no posts with this category")
-		data := map[string]interface{}{
-			"NoPosts": true,
-		}
-		fmt.Println(data)
-		tpl.ExecuteTemplate(w, "subforum.html", data)
-		return
 
-	}
 	action := r.URL.Query().Get("sort")
 	switch action {
 	case "top":
@@ -499,6 +494,15 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request, categoryURL string)
 	}
 
 	var comments struct{}
+
+	if len(posts) == 0 {
+		currentCategory.NoPosts = true
+		data := functions.BuildResponse(loggedUser, posts, comments, categories, currentCategory)
+		fmt.Println(data)
+		tpl.ExecuteTemplate(w, "subforum.html", data)
+		return
+
+	}
 
 	data := functions.BuildResponse(loggedUser, posts, comments, categories, currentCategory)
 	tpl.ExecuteTemplate(w, "subforum.html", data)

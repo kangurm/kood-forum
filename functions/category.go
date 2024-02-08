@@ -10,6 +10,7 @@ type Category struct {
 	Text    string
 	URL     string
 	Created string
+	NoPosts bool
 }
 
 func GetAllCategoriesFromDb() ([]Category, error) {
