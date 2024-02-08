@@ -20,7 +20,7 @@ func main() {
 	defer functions.CloseDb()
 	tpl, err = template.ParseGlob("templates/*.html")
 	if err != nil {
-		log.Fatalf("Error parsing remplates: %v", err)
+		log.Fatalf("Error parsing templates: %v", err)
 	}
 	port := "8080"
 	http.HandleFunc("/", IndexHandler)
@@ -410,7 +410,11 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil || loggedUser.Id == 0 {
-			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+			fmt.Println("Log in to add reaction")
+			loggedUser.IsLoggedIn = false
+			loggedUser.ErrorMessage = "Log in to add reaction"
+			data := functions.BuildResponse(loggedUser)
+			tpl.ExecuteTemplate(w, "login.html", data)
 			return
 		}
 
@@ -490,6 +494,15 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request, categoryURL string)
 	}
 
 	var comments struct{}
+
+	if len(posts) == 0 {
+		currentCategory.NoPosts = true
+		data := functions.BuildResponse(loggedUser, posts, comments, categories, currentCategory)
+		fmt.Println(data)
+		tpl.ExecuteTemplate(w, "subforum.html", data)
+		return
+
+	}
 
 	data := functions.BuildResponse(loggedUser, posts, comments, categories, currentCategory)
 	tpl.ExecuteTemplate(w, "subforum.html", data)

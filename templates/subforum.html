@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel='stylesheet' href='/static/styles/style.css'>
-        <title>MONKA</title>
+        <title>Forum</title>
     </head>
     <body>
         <header>
@@ -16,10 +16,6 @@
                         <div class="menuIconBars"></div>
                     </div>
                     <a id="homeArticle" href="/">Home</a>
-                </div>
-                <div class="middle">
-                    <input class="searchBar" type="search"
-                        placeholder="Search...">
                 </div>
                 <div class="end">
                     {{if .LoggedUser.IsLoggedIn}}
@@ -58,6 +54,9 @@
                         href="/{{.CurrentCategory.URL}}?sort=new">New</a>
                 </div>
                 <div class="contentMenu">
+                    {{if .CurrentCategory.NoPosts}}
+                    <p class="noPostsMessage">There are no posts in this category. Please create a post!!.</p>
+                    {{else}}
                     {{range .Posts}}
                     <a class="noEffectArticle" href="/post/{{.Post_id}}">
                         <div class="postBar">
@@ -75,11 +74,7 @@
                         </div>
                     </a>
                     {{end}}
-                    <div class="pageContainer">
-                        <a>1</a>
-                        <a>2</a>
-                        <a>3</a>
-                    </div>
+                    {{end}}
                 </div>
             </div>
         </div>

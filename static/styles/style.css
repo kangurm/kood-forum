@@ -32,14 +32,34 @@ footer {
 }
 
 .fixedContainer {
-    background-color: #2d2d30;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    height: 2.5rem;
+    padding: 0 20px;
 }
 
+.logo-and-home {
+    display: flex;
+    align-items: center;
+}
+
+.forumtitle {
+    flex-grow: 1;
+    text-align: center;
+    padding: 0 20px; 
+    font-family:  sans-serif; 
+}
+
+.logo {
+    height: 40px; 
+    width: auto;
+}
+
+#homeArticle {
+    margin-left: 20px; /* Spacing between logo and home link */
+    text-decoration: none; /* Optional: removes underline */
+    color: white;
+}
 .start {
     padding-left: 0.5rem;
     display: flex;
@@ -71,9 +91,6 @@ footer {
     right: 35%;
 }
 
-#homeArticle {
-    align-self: center;
-}
 
 .searchBar {
     max-width: 100rem;
@@ -109,7 +126,7 @@ footer {
 }
 
 .main {
-    margin-top: 3rem;
+    margin-top: 80px;
     background-color: #2d2d30;
     border-radius: 1%;
     display: inline-block;
@@ -119,7 +136,7 @@ footer {
 }
 
 .leftSidebarContainer {
-    margin-top: 3rem;
+    margin-top: 80px;
     margin-right: 1rem;
     background-color: #2d2d30;
     width: 10rem;
@@ -527,7 +544,7 @@ input[type="checkbox"].hide-input:checked + .toggle-el {
     width: 20px;
     height: 20px;
     background-color: white;
-    border: 2px solid #000000; /* checkbox border color */
+    border: 2px solid #000000; 
     border-radius: 4px;
     display: inline-block;
     position: relative;
@@ -555,3 +572,11 @@ label.toggle {
     color: #000; 
     font-size: 0.9rem;
 }
+
+.noPostsMessage {
+    color: white; 
+    font-size: 1.2rem;
+    text-align: left;
+    margin: 20px 0 20px 10px;
+}
+
