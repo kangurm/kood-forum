@@ -9,44 +9,46 @@
     <body>
         <header>
             <nav class="fixedContainer">
-                <div class="start">
+                <div class="logo-and-home">
                     <div class="menuIcon">
                         <div class="menuIconBars"></div>
                         <div class="menuIconBars"></div>
                         <div class="menuIconBars"></div>
                     </div>
-                    <a id="homeArticle" href="/">Home</a>
+                    <a id="homeArticle" href="/"><img src="/static/styles/Logo1.svg" alt="Logo" class="logo"></a>
                 </div>
+                <h1 class="forumtitle">Märgatud Kood/Jõhvis</h1>
                 <div class="end">
                     {{if .LoggedUser.IsLoggedIn}}
-                    <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: azure;">{{.LoggedUser.Username}}</h4></h3>
+                    <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: yellowgreen;">
+                            {{.LoggedUser.Username}}</h4>
+                    </h3>
                     <span class="padding"></span>
-                    <a href="/create-a-post">New Post</a>
+                    <a class="hoverGreenText" href="/create-a-post">New Post</a>
                     <span class="padding"></span>
-                    <a href="/logout">Logout</a>
+                    <a class="hoverGreenText" href="/logout">Logout</a>
                     {{else}}
-                    <a href="/login">Login</a>
+                    <a class="hoverGreenText" href="/login">Login</a>
                     {{end}}
                 </div>
             </nav>
         </header>
         <div class="centerContainer">
             <form action="http://localhost:8080/login" class="loginForm" method="post">
-                <h2>LOG IN</h2>
+                <h2>LOGIN</h2>
                 <hr class="solidHR">
                 {{if .LoggedUser.WelcomeMessage}}
-                <div class="welcome-message">
-                    {{.LoggedUser.WelcomeMessage}}
+                <div class="welcome-message">{{.LoggedUser.WelcomeMessage}}
                 </div>
                 {{end}}
                 <input type="email" name="email" class="inputBox"
-                    placeholder="Enter Email or Username">
+                    placeholder="Enter Email or Username" required>
                 <input type="password" name="password" class="inputBox"
-                    placeholder="Enter Password">
-                    {{if .LoggedUser.ErrorMessage}}
-                    <div class="error-message">{{.LoggedUser.ErrorMessage}}</div>
+                    placeholder="Enter Password" required>
+                {{if .LoggedUser.ErrorMessage}}
+                <div class="error-message">{{.LoggedUser.ErrorMessage}}</div>
                 {{end}}
-                <input type="submit" value="LOG IN" id="submit">
+                <input type="submit" value="LOGIN" id="submit">
                 <a href="/register">Not a User? Register now!</a>
             </form>
         </div>

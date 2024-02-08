@@ -82,15 +82,7 @@ footer {
     cursor: pointer;
 }
 
-.middle {
-    display: flexbox;
-    flex-wrap: wrap;
-    text-align: center;
-    align-self: center;
-    position: absolute;
-    left: 35%;
-    right: 35%;
-}
+
 
 
 .searchBar {
@@ -150,16 +142,23 @@ footer {
     text-align: center;
 }
 
+#topicHead {
+    text-align: center;
+    margin-top: 4px;
+}
+
 .topics {
     display: flex;
     justify-content: space-between;
     padding: 5px 15px 5px 15px;
     border-radius: 10em;
     margin-left: 0.4em;
+    text-decoration: none;
 }
 
 .topics:hover {
     cursor: pointer;
+    color: greenyellow;
 }
 
 .topicButtons {
@@ -188,7 +187,8 @@ footer {
 .postTitle {
     color: greenyellow;
     font-size: larger; 
-    margin-bottom: 15px; 
+    margin-bottom: 15px;
+    margin-left: 15px;
 }
 .postDate {
     font-size: small;
@@ -271,20 +271,24 @@ hr {
 
 .centerContainer {
     display: flex;
+    justify-self: center;
+    justify-content: center;
+    align-items: center;
     height: auto;
-    width: 800px;
-    border: 1px solid black;
+    width: 600px;
     margin: auto;
-    margin-top: 50px;
+    border-radius: 20px;
+    margin-top: 80px;
     background-color: #2d2d30;
     padding: 20px;
     flex-direction: column;
     align-items: center;
 }
 .centerContainer h2 {
-    margin-left: 20px; 
-    color: greenyellow; 
-
+    color: white;
+    font-size: 2.5rem;
+    font-family: sans-serif;
+    text-align: center;
 }
 
 .loginForm {
@@ -294,15 +298,15 @@ hr {
     align-items: center;
     padding: 20px;
     background-color: #2d2d30;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 50px;
     color: greenyellow;
 }
 
 .loginForm h2 {
-    font-size: 3rem;
-    margin: 40px;
-    color: greenyellow;
+    font-size: 2.5rem;
+    color: white;
+    font-family: sans-serif;
+    text-align: center;
 }
 
 .loginForm h3 {
@@ -312,7 +316,7 @@ hr {
 
 .inputBox {
     padding: 12px;
-    width: 65%;
+    width: 60%;
     margin: 15px;
     border: 1px solid black;
     outline: none;
@@ -345,8 +349,9 @@ hr {
 }
 
 #submit {
+    align-self: center;
     padding: 12px 30px;
-    width: 40%;
+    width: 30%;
     margin-top: 40px;
     margin-bottom: 20px;
     font-weight: bold;
@@ -374,7 +379,7 @@ hr {
 }
 
 .h3title {
-    color: greenyellow;
+    color: white;
     font-size: 2rem;
 }
 .error-message {
@@ -401,7 +406,7 @@ hr {
     padding: 20px;
     border-radius: 10px;
     color: white;
-    margin-top: 70px; /* Adjust as needed */
+    margin-top: 80px; /* Adjust as needed */
     width: 80%;
     max-width: 800px;
 }
@@ -416,16 +421,18 @@ hr {
 }
 
 .postUsername {
+    display: flex;
     font-size: medium;
     color: #E8E8E8;
     margin-bottom: 10px;
-
+    align-items: center;
 }
 
 .postBody {
     font-size: medium;
     color: white;
     margin-bottom: 20px; /* Space between text and date */
+    margin-left: 15px;
 }
 
 .postActions {
@@ -601,4 +608,20 @@ label.toggle {
 
 .hoverGreenText:hover {
     color: greenyellow;
+}
+
+.notInline {
+    display: block;
+}
+
+.avatar {
+    height: 20px;
+    width: 20px;
+    margin-right: 7px;
+}
+
+.leftright {
+    position: relative;
+    left: 0;
+    right: 0;
 }
