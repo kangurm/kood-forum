@@ -1,16 +1,16 @@
 package functions
 
 type WrapperStruct struct {
-	LoggedUser   interface{}
-	Posts        interface{}
-	Comments     interface{}
-	Category     interface{}
+	LoggedUser      interface{}
+	Posts           interface{}
+	Comments        interface{}
+	Category        interface{}
 	CurrentCategory interface{}
 	// Add more if needed
 }
 
 // Prepare structs for response.
-// In this order LoggedUser, Posts, Comments, Category
+// In this order LoggedUser, Posts, Comments, Category, CurrentCategory
 func BuildResponse(data ...interface{}) interface{} {
 	wrapper := WrapperStruct{}
 

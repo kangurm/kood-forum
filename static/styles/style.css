@@ -35,7 +35,10 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background-color: #2d2d30;
     padding: 0 20px;
+    height: 60px; /* Adjust based on your design */
+    width: 100%;
 }
 
 .logo-and-home {
@@ -46,20 +49,18 @@ footer {
 .forumtitle {
     flex-grow: 1;
     text-align: center;
-    padding: 0 20px; 
-    font-family:  sans-serif; 
+    margin: 0 auto;
+    padding: 0 50px; 
+    font-family: sans-serif; 
+    position:absolute;
+    left: 38%
 }
 
 .logo {
-    height: 40px; 
-    width: auto;
+    height: 30px; /* Adjust based on your logo */
+    width: auto; /* Maintains aspect ratio */
 }
 
-#homeArticle {
-    margin-left: 20px; /* Spacing between logo and home link */
-    text-decoration: none; /* Optional: removes underline */
-    color: white;
-}
 .start {
     padding-left: 0.5rem;
     display: flex;
@@ -105,12 +106,13 @@ footer {
 }
 .end a,
 .end #user-info {
-    color: greenyellow; /* Match the color of the links */
+    color: white; /* Match the color of the links */
     text-decoration: none; /* Remove underline from links */
     margin-right: 10px; /* Consistent spacing */
     font-size: 16px; /* Match the font size of other elements */
     line-height: 2rem; /* Align vertically within the navbar */
     vertical-align: middle; /* Align text vertically */
+    font-family: sans-serif;
 }
 
 .end #user-info {
@@ -133,6 +135,7 @@ footer {
     height: auto;
     max-width: 1920px;
     max-height: 1080px;
+    margin-right: 20px;
 }
 
 .leftSidebarContainer {
@@ -212,14 +215,16 @@ footer {
 }
 
 a::after, a::before, a:hover, a {
-    color: greenyellow;
+    color: white;
     font-style: normal;
+    font-family: sans-serif; 
 }
 
 .sortButtons {
     color: black;
     background-color: greenyellow;
-    padding: 4px 5px 4px 5px;
+    padding: 0px 5px 4px 5px;
+    text-decoration: none;
 }
 
 .postLikes {
@@ -377,8 +382,9 @@ hr {
     margin: 10px 0;
 }
 .welcome-message {
-    color: yellow;
+    color: white;
     margin: 10px 0;
+    font-family: sans-serif; 
 }
 .user-exists {
     color: red;
@@ -405,7 +411,8 @@ hr {
 }
 
 .postTitle {
-    color: greenyellow;
+    color: white;
+    font-family: sans-serif;
 }
 
 .postUsername {
@@ -580,3 +587,18 @@ label.toggle {
     margin: 20px 0 20px 10px;
 }
 
+.flexDirDown {
+    flex-direction: column;
+}
+
+.category {
+    background: yellowgreen ;
+    border: #2d2d30 solid;
+    border-radius: 10px;
+    color: black;
+    padding: 3px;
+}
+
+.hoverGreenText:hover {
+    color: greenyellow;
+}

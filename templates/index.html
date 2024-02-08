@@ -1,80 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel='stylesheet' href='/static/styles/style.css'>
-        <title>Forum</title>
-    </head>
-    <body>
-        <header>
-            <nav class="fixedContainer">
-                <div class="logo-and-home">
-                    <div class="menuIcon">
-                        <div class="menuIconBars"></div>
-                        <div class="menuIconBars"></div>
-                        <div class="menuIconBars"></div>
-                    </div>
-                    <img src="/static/styles/Logo1.jpeg" alt="Logo" class="logo">
-                    <a id="homeArticle" href="/">Home</a>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' href='/static/styles/style.css'>
+    <title>Forum</title>
+</head>
+
+<body>
+    <header>
+        <nav class="fixedContainer">
+            <div class="logo-and-home">
+                <div class="menuIcon">
+                    <div class="menuIconBars"></div>
+                    <div class="menuIconBars"></div>
+                    <div class="menuIconBars"></div>
                 </div>
-                <h1 class="forumtitle">Märgatud Kood/Jõhvis</h1>
-                <div class="end">
-                    {{if .LoggedUser.IsLoggedIn}}
-                    <h3 id="user-info">Welcome, <h4 id="user-info"
-                            class="inline"
-                            style="padding-left: 4px; color: azure;">{{.LoggedUser.Username}}</h4></h3>
-                    <span class="padding"></span>
-                    <a href="/create-a-post">New Post</a>
-                    <span class="padding"></span>
-                    <a href="/logout">Logout</a>
-                    {{else}}
-                    <a href="/login">Login</a>
-                    {{end}}
-                </div>
-            </nav>
-        </header>
-        <div class="BODY">
-            <div class="leftSidebarContainer">
-                <div id="topicHead" class="topics">
-                    <span class="dropdownName">TOPICS</span>
-                    <span class="dropdownArrow">↴</span>
-                </div>
-                <hr>
-                <nav class="topicsArea">
-                    {{range .Category}}
-                    <a href="/{{.URL}}" class="topics">{{.Text}}</a>
-                    {{end}}
-                    <h4>...</h4>
-                </nav>
+                <a id="homeArticle" href="/"><img src="/static/styles/Logo1.svg" alt="Logo" class="logo"></a>
             </div>
-            <div class="main" style="width: 100%;">
-                <div class="navbar">
-                    <a id="topButton" class="sortButtons"
-                        href="/?sort=top">Top</a>
-                    <a id="topButton" class="sortButtons"
-                        href="/?sort=new">New</a>
-                </div>
-                <div class="contentMenu">
-                    {{range .Posts}}
-                    <a class="noEffectArticle" href="/post/{{.Post_id}}">
-                        <div class="postBar">
-                            <div class="likeDiv">
-                                <span class="postLikes">👍{{.LikeCount}}</span>
-                                <span
-                                    class="postDislikes">👎{{.DislikeCount}}</span>
-                            </div>
-                            <h2 class="postTitle">{{.Title}}</h2>
-                            <div>
-                                {{range .Categories}}
-                                <span class="category">{{.}}</span>
-                                {{end}}
-                            </div>
+            <h1 class="forumtitle">Märgatud Kood/Jõhvis</h1>
+            <div class="end">
+                {{if .LoggedUser.IsLoggedIn}}
+                <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: yellowgreen;">
+                        {{.LoggedUser.Username}}</h4>
+                </h3>
+                <span class="padding"></span>
+                <a class="hoverGreenText" href="/create-a-post">New Post</a>
+                <span class="padding"></span>
+                <a class="hoverGreenText" href="/logout">Logout</a>
+                {{else}}
+                <a class="hoverGreenText" href="/login">Login</a>
+                {{end}}
+            </div>
+        </nav>
+    </header>
+    <div class="BODY">
+        <div class="leftSidebarContainer">
+            <div id="topicHead" class="topics">
+                <span class="dropdownName">TOPICS</span>
+                <span class="dropdownArrow">↴</span>
+            </div>
+            <hr>
+            <nav class="topicsArea">
+                {{range .Category}}
+                <a href="/{{.URL}}" class="topics">{{.Text}}</a>
+                {{end}}
+                <h4>...</h4>
+            </nav>
+        </div>
+        <div class="main" style="width: 100%;">
+            <div class="navbar">
+                <a id="topButton" class="sortButtons" href="/?sort=top">Top</a>
+                <a id="topButton" class="sortButtons" href="/?sort=new">New</a>
+            </div>
+            <div class="contentMenu">
+                {{range .Posts}}
+                <a class="noEffectArticle" href="/post/{{.Post_id}}">
+                    <div class="postBar">
+                        <div class="likeDiv">
+                            <span class="postLikes">👍{{.LikeCount}}</span>
+                            <span class="postDislikes">👎{{.DislikeCount}}
+                            </span>
                         </div>
-                    </a>
-                    {{end}}
-                </div>
+                        <div class="flexDirDown">
+                            <h2 class="postTitle">{{.Title}}</h2>
+                            {{range .Categories}}
+                            <span class="category">{{.}}</span>
+                            {{end}}
+                        </div>
+                    </div>
+                </a>
+                {{end}}
             </div>
         </div>
-    </body>
+    </div>
+</body>
+
 </html>

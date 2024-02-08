@@ -149,7 +149,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if exists {
 			w.Header().Set("Content-Type", "text/html")
-			tpl.ExecuteTemplate(w, "register.html", functions.LoggedUser{UserExists: "Username or Email already in use"})
+			var loggedUser functions.LoggedUser
+			loggedUser.UserExists = "Username or Email already in use"
+			loggedUser.IsLoggedIn = false
+			data := functions.BuildResponse(loggedUser)
+			tpl.ExecuteTemplate(w, "register.html", data)
 			return
 		}
 		passwordHash, _ := functions.HashPassword(password)
@@ -158,6 +162,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		functions.RegisterUserToDb(username, firstname, lastname, passwordHash, email)
 		w.Header().Set("Content-Type", "text/html")
 		var loggedUser functions.LoggedUser
+		loggedUser.IsLoggedIn = false
 		loggedUser.WelcomeMessage = "Welcome, you are registered, please login in!"
 		data := functions.BuildResponse(loggedUser)
 		tpl.ExecuteTemplate(w, "login.html", data)
