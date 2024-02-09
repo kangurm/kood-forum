@@ -6,35 +6,53 @@
         <link rel='stylesheet' href='/static/styles/style.css'>
         <title>Post Detail</title>
     </head>
-    <body>   
-            <header>
-                <nav class="fixedContainer">
-                    <div class="logo-and-home">
-                        <div class="menuIcon">
-                            <div class="menuIconBars"></div>
-                            <div class="menuIconBars"></div>
-                            <div class="menuIconBars"></div>
-                        </div>
-                        <a id="homeArticle" href="/"><img src="/static/styles/Logo1.svg" alt="Logo" class="logo"></a>
-                    </div>
-                    <h1 class="forumtitle">Märgatud Kood/Jõhvis</h1>
-                    <div class="end">
+    <body>
+        <header>
+            <nav class="fixedContainer">
+                <div class="logo-and-home">
+                    <a id="homeArticle" href="/"><img
+                            src="/static/styles/Logo1.svg" alt="Logo"
+                            class="logo"></a>
+                </div>
+                <h1 class="forumtitle">Märgatud Kood/Jõhvis</h1>
+                <div class="end">
+                    {{if .LoggedUser.IsLoggedIn}}
+                    <h3 id="user-info">Welcome, <h4 id="user-info"
+                            class="inline"
+                            style="padding-left: 4px; color: yellowgreen;">
+                            {{.LoggedUser.Username}}</h4>
+                    </h3>
+                    <span class="padding"></span>
+                    <a class="hoverGreenText" href="/create-a-post">New Post</a>
+                    <span class="padding"></span>
+                    <a class="hoverGreenText" href="/logout">Logout</a>
+                    {{else}}
+                    <a class="hoverGreenText" href="/login">Login</a>
+                    {{end}}
+                </div>
+                <div id="menuIcon" onclick="toggleMobileMenu(this)">
+                    <div class="menuIconBars"></div>
+                    <div class="menuIconBars"></div>
+                    <div class="menuIconBars"></div>
+                    <ul class="mobile-menu">
                         {{if .LoggedUser.IsLoggedIn}}
-                        <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: yellowgreen;">
-                                {{.LoggedUser.Username}}</h4>
-                        </h3>
-                        <span class="padding"></span>
-                        <a class="hoverGreenText" href="/create-a-post">New Post</a>
-                        <span class="padding"></span>
-                        <a class="hoverGreenText" href="/logout">Logout</a>
+                        <li><h4 id="user-info" class="inline"
+                                style="padding-left: 4px; color: yellowgreen;">{{.LoggedUser.Username}}</h4></li>
+                        <li><a class="hoverGreenText" href="/create-a-post">New
+                                Post</a></li>
+                        <li><a class="hoverGreenText"
+                                href="/logout">Logout</a></li>
                         {{else}}
-                        <a class="hoverGreenText" href="/login">Login</a>
+                        <li><a class="hoverGreenText"
+                                href="/login">Login</a></li>
                         {{end}}
-                    </div>
-                </nav>
+                    </ul>
+                </div>
+            </nav>
         </header>
         <div class="postContainer">
-            <span class="postUsername"><img class="avatar" src="/static/styles/avatar.png">{{.Posts.Username}}</span>
+            <span class="postUsername"><img class="avatar"
+                    src="/static/styles/avatar.png">{{.Posts.Username}}</span>
             <div class="postHeader">
                 <h1 class="postTitle">{{.Posts.Title}}</h1>
             </div>
@@ -52,9 +70,11 @@
             <div class="commentSection">
                 <h3>Comments</h3>
                 {{if .LoggedUser.IsLoggedIn}}
-                <form method="POST" action="/post/comment?post_id={{.Posts.Post_id}}">
+                <form method="POST"
+                    action="/post/comment?post_id={{.Posts.Post_id}}">
                     <textarea type="text" name="comment" class="commentInputBox"
-                        placeholder="Write a comment..." required maxlength="1500" minlength="2"></textarea>
+                        placeholder="Write a comment..." required
+                        maxlength="1500" minlength="2"></textarea>
                     <button type="submit" class="commentSubmit">Submit</button>
                 </form>
                 {{else}}
@@ -63,16 +83,27 @@
                 <div class="comments">
                     {{range .Comments}}
                     <div class="comment">
-                        <span class="postUsername"><img class="avatar" src="/static/styles/avatar.png">{{.Username}}</span>
+                        <span class="postUsername"><img class="avatar"
+                                src="/static/styles/avatar.png">{{.Username}}</span>
                         <p class="commentText">{{.Text}}</p>
                         <span class="commentDate">Created: {{.Created}}</span>
                         <div class="commentActions">
-                            <a href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=like" class="likeButton">👍 Like ({{.LikeCount}})</a>
-                            <a href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=dislike" class="dislikeButton">👎 Dislike ({{.DislikeCount}})</a>
-                            </div>
+                            <a
+                                href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=like"
+                                class="likeButton">👍 Like ({{.LikeCount}})</a>
+                            <a
+                                href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=dislike"
+                                class="dislikeButton">👎 Dislike
+                                ({{.DislikeCount}})</a>
+                        </div>
                     </div>
                     {{end}}
-             </div>
-        </div>
-    </body>
-</html>
+                </div>
+            </div>
+            <script>
+            function toggleMobileMenu(menu) {
+                menu.classList.toggle('open');
+            }
+            </script>
+        </body>
+    </html>

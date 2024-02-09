@@ -10,17 +10,16 @@
         <header>
             <nav class="fixedContainer">
                 <div class="logo-and-home">
-                    <div class="menuIcon">
-                        <div class="menuIconBars"></div>
-                        <div class="menuIconBars"></div>
-                        <div class="menuIconBars"></div>
-                    </div>
-                    <a id="homeArticle" href="/"><img src="/static/styles/Logo1.svg" alt="Logo" class="logo"></a>
+                    <a id="homeArticle" href="/"><img
+                            src="/static/styles/Logo1.svg" alt="Logo"
+                            class="logo"></a>
                 </div>
                 <h1 class="forumtitle">Märgatud Kood/Jõhvis</h1>
                 <div class="end">
                     {{if .LoggedUser.IsLoggedIn}}
-                    <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: yellowgreen;">
+                    <h3 id="user-info">Welcome, <h4 id="user-info"
+                            class="inline"
+                            style="padding-left: 4px; color: yellowgreen;">
                             {{.LoggedUser.Username}}</h4>
                     </h3>
                     <span class="padding"></span>
@@ -31,10 +30,29 @@
                     <a class="hoverGreenText" href="/login">Login</a>
                     {{end}}
                 </div>
+                <div id="menuIcon" onclick="toggleMobileMenu(this)">
+                    <div class="menuIconBars"></div>
+                    <div class="menuIconBars"></div>
+                    <div class="menuIconBars"></div>
+                    <ul class="mobile-menu">
+                        {{if .LoggedUser.IsLoggedIn}}
+                        <li><h4 id="user-info" class="inline"
+                                style="padding-left: 4px; color: yellowgreen;">{{.LoggedUser.Username}}</h4></li>
+                        <li><a class="hoverGreenText" href="/create-a-post">New
+                                Post</a></li>
+                        <li><a class="hoverGreenText"
+                                href="/logout">Logout</a></li>
+                        {{else}}
+                        <li><a class="hoverGreenText"
+                                href="/login">Login</a></li>
+                        {{end}}
+                    </ul>
+                </div>
             </nav>
         </header>
         <div class="centerContainer">
-            <form action="http://localhost:8080/login" class="loginForm" method="post">
+            <form action="http://localhost:8080/login" class="loginForm"
+                method="post">
                 <h2>LOGIN</h2>
                 <hr class="solidHR">
                 {{if .LoggedUser.WelcomeMessage}}
@@ -52,5 +70,10 @@
                 <a href="/register">Not a User? Register now!</a>
             </form>
         </div>
+        <script>
+            function toggleMobileMenu(menu) {
+                menu.classList.toggle('open');
+            }
+            </script>
     </body>
 </html>

@@ -8,30 +8,48 @@
     </head>
     <body>
         <header>
-                <nav class="fixedContainer">
-                    <div class="logo-and-home">
-                        <div class="menuIcon">
-                            <div class="menuIconBars"></div>
-                            <div class="menuIconBars"></div>
-                            <div class="menuIconBars"></div>
-                        </div>
-                        <a id="homeArticle" href="/"><img src="/static/styles/Logo1.svg" alt="Logo" class="logo"></a>
-                    </div>
-                    <h1 class="forumtitle">{{.CurrentCategory.Text}}</h1>
-                    <div class="end">
+            <nav class="fixedContainer">
+                <div class="logo-and-home">
+                    <a id="homeArticle" href="/"><img
+                            src="/static/styles/Logo1.svg" alt="Logo"
+                            class="logo">
+                    </a>
+                </div>
+                <h1 class="forumtitle">{{.CurrentCategory.Text}}</h1>
+                <div class="end">
+                    {{if .LoggedUser.IsLoggedIn}}
+                    <h3 id="user-info">Welcome, <h4 id="user-info"
+                            class="inline"
+                            style="padding-left: 4px; color: yellowgreen;">
+                            {{.LoggedUser.Username}}</h4>
+                    </h3>
+                    <span class="padding"></span>
+                    <a class="hoverGreenText" href="/create-a-post">New Post</a>
+                    <span class="padding"></span>
+                    <a class="hoverGreenText" href="/logout">Logout</a>
+                    {{else}}
+                    <a class="hoverGreenText" href="/login">Login</a>
+                    {{end}}
+                </div>
+                <div id="menuIcon" onclick="toggleMobileMenu(this)">
+                    <div class="menuIconBars"></div>
+                    <div class="menuIconBars"></div>
+                    <div class="menuIconBars"></div>
+                    <ul class="mobile-menu">
                         {{if .LoggedUser.IsLoggedIn}}
-                        <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: yellowgreen;">
-                                {{.LoggedUser.Username}}</h4>
-                        </h3>
-                        <span class="padding"></span>
-                        <a class="hoverGreenText" href="/create-a-post">New Post</a>
-                        <span class="padding"></span>
-                        <a class="hoverGreenText" href="/logout">Logout</a>
+                        <li><h4 id="user-info" class="inline"
+                                style="padding-left: 4px; color: yellowgreen;">{{.LoggedUser.Username}}</h4></li>
+                        <li><a class="hoverGreenText" href="/create-a-post">New
+                                Post</a></li>
+                        <li><a class="hoverGreenText"
+                                href="/logout">Logout</a></li>
                         {{else}}
-                        <a class="hoverGreenText" href="/login">Login</a>
+                        <li><a class="hoverGreenText"
+                                href="/login">Login</a></li>
                         {{end}}
-                    </div>
-                </nav>
+                    </ul>
+                </div>
+            </nav>
         </header>
         <div class="BODY">
             <div class="leftSidebarContainer">
@@ -56,7 +74,8 @@
                 </div>
                 <div class="contentMenu">
                     {{if .CurrentCategory.NoPosts}}
-                    <p class="noPostsMessage">There are no posts in this category. Please create a post!!.</p>
+                    <p class="noPostsMessage">There are no posts in this
+                        category. Please create a post!!.</p>
                     {{else}}
                     {{range .Posts}}
                     <a class="noEffectArticle" href="/post/{{.Post_id}}">
@@ -79,5 +98,10 @@
                 </div>
             </div>
         </div>
+        <script>
+            function toggleMobileMenu(menu) {
+                menu.classList.toggle('open');
+            }
+            </script>
     </body>
 </html>
