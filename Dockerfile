@@ -2,8 +2,14 @@ FROM golang:1.21.1
 
 WORKDIR /forum/
 
+RUN apt-get update && apt-get install -y \
+    sqlite3 \
+    libsqlite3-dev
+
 COPY . .
 
-RUN GOOS=linux GOARCH=amd64 go build -o main
+ENV CGO_ENABLED=1
+
+RUN go build -o main
 
 CMD ["./main"]
