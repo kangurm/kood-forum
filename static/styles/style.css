@@ -259,10 +259,13 @@ hr {
         display: block;
     }
     .fixedContainer {
-        font-size: 16px;
+        font-size: 10px;
     }
     .postTitle {
         font-size: 15px;
+    }
+    .logo {
+        width: 110px;
     }
 }
 
@@ -270,6 +273,7 @@ hr {
     .menuIcon {
         display: none;
         background-size: 110px 30px;
+
     }
 }
 
