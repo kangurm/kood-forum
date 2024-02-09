@@ -37,8 +37,9 @@ func main() {
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	functions.NoCacheHeaders(w)
 
+	functions.NoCacheHeaders(w)
+	//This block parsing the catogory from the URL, if exist then handling CategoryHandler
 	parts := strings.Split(r.URL.Path, "/")
 	categoryURL := parts[1]
 	fmt.Println(categoryURL)
@@ -52,18 +53,22 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
 		return
 	}
-
+	//enforce that only GET request are allowed.
 	if r.Method != "GET" {
 		ErrorHandler(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 
-	// Posts sorting logic
+	// Posts sorting logic: retrieves posts from db and checks for a sorting
+	//parameters in the URL query string and sorts the posts accordingly
 	posts, err := functions.GetPostsFromDb()
 	if err != nil {
 		fmt.Println(err)
 	}
+	//r.URL.Query method returns the first value associated with the given key "sort"
+	//if there is no such key, it returns an empty string
 	action := r.URL.Query().Get("sort")
 	switch action {
+	//sorting by the most liked comments
 	case "top":
 		posts, err = functions.SortByTop(posts)
 		if err != nil {
@@ -107,8 +112,16 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var comments struct{}
-
-	data := functions.BuildResponse(loggedUser, posts, comments, categories)
+	currentCategory := functions.Category{}
+	if len(posts) == 0 {
+		currentCategory.NoPosts = true
+		data := functions.BuildResponse(loggedUser, posts, comments, categories, currentCategory)
+		fmt.Println(data)
+		tpl.ExecuteTemplate(w, "index.html", data)
+		return
+	}
+	currentCategory.NoPosts = false
+	data := functions.BuildResponse(loggedUser, posts, comments, categories, currentCategory)
 
 	w.Header().Set("Content-Type", "text/html")
 	tpl.ExecuteTemplate(w, "index.html", data)
@@ -360,13 +373,13 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	loggedUser, err := functions.AuthenticateUser(w, r)
 	if err != nil || loggedUser.Id == 0 {
 		loggedUser.IsLoggedIn = false
-
 	}
 
 	currentComments, err := functions.GetCommentsByPostId(post_id)
 	if err != nil {
 		fmt.Println("Error getting comment info from database")
 	}
+
 	data := functions.BuildResponse(loggedUser, currentPost, currentComments)
 
 	tpl.ExecuteTemplate(w, "post.html", data)

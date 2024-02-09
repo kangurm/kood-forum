@@ -17,7 +17,7 @@
                         </div>
                         <a id="homeArticle" href="/"><img src="/static/styles/Logo1.svg" alt="Logo" class="logo"></a>
                     </div>
-                    <h1 class="forumtitle">Märgatud Kood/Jõhvis</h1>
+                    <h1 class="forumtitle">{{.CurrentCategory.Text}}</h1>
                     <div class="end">
                         {{if .LoggedUser.IsLoggedIn}}
                         <h3 id="user-info">Welcome, <h4 id="user-info" class="inline" style="padding-left: 4px; color: yellowgreen;">

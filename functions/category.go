@@ -104,6 +104,7 @@ func GetCategoryID(categoryName string) int {
 	return category_id
 }
 
+// DoesCategoryExist finds catogory from db and returns bool
 func DoesCategoryExist(categoryURL string) bool {
 	var exists bool
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE url = ?)", categoryURL).Scan(&exists)

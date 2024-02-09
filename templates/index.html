@@ -12,7 +12,7 @@
     <header>
         <nav class="fixedContainer">
             <div class="logo-and-home">
-                <div class="menuIcon">
+                <div class="menuIcon" onclick="toggleSidebar()">
                     <div class="menuIconBars"></div>
                     <div class="menuIconBars"></div>
                     <div class="menuIconBars"></div>
@@ -55,6 +55,9 @@
                 <a id="topButton" class="sortButtons" href="/?sort=new">New</a>
             </div>
             <div class="contentMenu">
+                {{if .CurrentCategory.NoPosts}}
+                    <p class="noPostsMessage">There are no posts. Please create a post!</p>
+                {{else}}
                 {{range .Posts}}
                 <a class="noEffectArticle" href="/post/{{.Post_id}}">
                     <div class="postBar">
@@ -72,9 +75,15 @@
                     </div>
                 </a>
                 {{end}}
+                {{end}}
             </div>
         </div>
     </div>
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.querySelector('.leftSidebarContainer');
+            sidebar.classList.toggle('show');
+        }
+    </script>
 </body>
-
 </html>

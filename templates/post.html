@@ -54,7 +54,7 @@
                 {{if .LoggedUser.IsLoggedIn}}
                 <form method="POST" action="/post/comment?post_id={{.Posts.Post_id}}">
                     <textarea type="text" name="comment" class="commentInputBox"
-                        placeholder="Write a comment..."></textarea>
+                        placeholder="Write a comment..." required maxlength="1500" minlength="2"></textarea>
                     <button type="submit" class="commentSubmit">Submit</button>
                 </form>
                 {{else}}
@@ -63,12 +63,12 @@
                 <div class="comments">
                     {{range .Comments}}
                     <div class="comment">
-                        <span class="commentUsername">{{.Username}}</span>
+                        <span class="postUsername"><img class="avatar" src="/static/styles/avatar.png">{{.Username}}</span>
                         <p class="commentText">{{.Text}}</p>
                         <span class="commentDate">Created: {{.Created}}</span>
                         <div class="commentActions">
-                            <a href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=like" class="commentLikeButton">👍 Like ({{.LikeCount}})</a>
-                            <a href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=dislike" class="commentDislikeButton">👎 Dislike ({{.DislikeCount}})</a>
+                            <a href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=like" class="likeButton">👍 Like ({{.LikeCount}})</a>
+                            <a href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=dislike" class="dislikeButton">👎 Dislike ({{.DislikeCount}})</a>
                             </div>
                     </div>
                     {{end}}

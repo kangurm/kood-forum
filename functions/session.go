@@ -14,6 +14,8 @@ type LoggedUser struct {
 	ErrorMessage   string
 	WelcomeMessage string
 	UserExists     string
+	LikedPost      bool
+	DislikePost    bool
 }
 
 func GenerateSessionID(password string) (string, error) {
@@ -140,9 +142,18 @@ func RemoveCookieFromClient(w http.ResponseWriter) {
 	})
 }
 
+// NoCacheHeaders sets HTTP headers to prevent caching of the response
+// Header().Set() method is called on w to set various HTTP headers
 func NoCacheHeaders(w http.ResponseWriter) {
+	//tells to browser that not cache the response
+	//must validate cache with server before using it
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	//No cache HTTP/1.0 older version headers
 	w.Header().Set("Pragma", "no-cache")
+	//Expires gives date/time after which the response is considered to stale.
+	//0 means that response is already expired
 	w.Header().Set("Expires", "0")
+	//client caches that can response might be different for every request,
+	//they should not use a cached response to satisfy the request
 	w.Header().Set("Vary", "*")
 }

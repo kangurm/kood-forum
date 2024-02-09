@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// SortBy
 func SortByTop(posts []Post) ([]Post, error) {
 	sort.Slice(posts, func(i, j int) bool {
 		return posts[i].LikeCount > posts[j].LikeCount
