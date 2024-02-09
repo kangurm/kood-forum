@@ -22,7 +22,7 @@ func SetUpDatabase(db *sql.DB) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("Succesfully create table if not exists index: ", i)
+		fmt.Println("Succesfully created table index: ", i)
 	}
 
 	return nil // Ensure there's a return at the end of the function

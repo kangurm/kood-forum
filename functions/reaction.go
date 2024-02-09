@@ -223,7 +223,7 @@ func AddReaction(post_id int, comment_id int, user_id int, like bool) {
 	}
 }
 
-// NOT IN USE YET
+// NOT IN USE YET. Purpose is to show green highlight wher user has liked a post or red highlight when disliked.
 func HasActiveReaction(post_id int, comment_id int, user_id int) (bool, bool) {
 	var exists bool
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM reaction WHERE post_id = ? AND comment_id = ? AND user_id = ?)", post_id, comment_id, user_id).Scan(&exists)
