@@ -1,13 +1,18 @@
-package handlers
+package main
 
 import (
 	"fmt"
 	"forum/functions"
+	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 )
+
+type TemplateHandler struct {
+	Tpl *template.Template
+}
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 

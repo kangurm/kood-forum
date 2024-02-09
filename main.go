@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"forum/functions"
-	"forum/handlers"
 	"html/template"
 	"log"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 var tpl *template.Template
 
 func main() {
+
 	var err error
 	functions.InitDb()
 	defer functions.CloseDb()
@@ -22,14 +22,14 @@ func main() {
 		log.Fatalf("Error parsing templates: %v", err)
 	}
 	port := "8080"
-	http.HandleFunc("/", handlers.IndexHandler)
-	http.HandleFunc("/post/", handlers.PostHandler)
-	http.HandleFunc("/login", handlers.LoginHandler)
-	http.HandleFunc("/register", handlers.RegisterHandler)
-	http.HandleFunc("/logout", handlers.LogoutHandler)
-	http.HandleFunc("/create-a-post", handlers.CreateAPostHandler)
-	http.HandleFunc("/post/react", handlers.ReactionHandler)
-	http.HandleFunc("/post/comment", handlers.CreateACommentHandler)
+	http.HandleFunc("/", IndexHandler)
+	http.HandleFunc("/post/", PostHandler)
+	http.HandleFunc("/login", LoginHandler)
+	http.HandleFunc("/register", RegisterHandler)
+	http.HandleFunc("/logout", LogoutHandler)
+	http.HandleFunc("/create-a-post", CreateAPostHandler)
+	http.HandleFunc("/post/react", ReactionHandler)
+	http.HandleFunc("/post/comment", CreateACommentHandler)
 	fmt.Println("Server running at http://localhost:" + port)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":"+port, nil)

@@ -269,6 +269,7 @@ hr {
 @media only screen and (min-width: 512px) {
     .menuIcon {
         display: none;
+        background-size: 110px 30px;
     }
 }
 
