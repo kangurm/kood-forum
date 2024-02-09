@@ -9,26 +9,44 @@
     <body>
         <header>
             <nav class="fixedContainer">
-                <div class="start">
-                    <div class="menuIcon">
-                        <div class="menuIconBars"></div>
-                        <div class="menuIconBars"></div>
-                        <div class="menuIconBars"></div>
-                    </div>
-                    <a id="homeArticle" href="/">Home</a>
+                <div class="logo-and-home">
+                    <a id="homeArticle" href="/"><img
+                            src="/static/styles/Logo1.svg" alt="Logo"
+                            class="logo"></a>
                 </div>
+                <h1 class="forumtitle">Märgatud Kood/Jõhvis</h1>
                 <div class="end">
                     {{if .LoggedUser.IsLoggedIn}}
                     <h3 id="user-info">Welcome, <h4 id="user-info"
                             class="inline"
-                            style="padding-left: 4px; color: azure;">{{.LoggedUser.Username}}</h4></h3>
+                            style="padding-left: 4px; color: yellowgreen;">
+                            {{.LoggedUser.Username}}</h4>
+                    </h3>
                     <span class="padding"></span>
-                    <a href="/create-a-post">New Post</a>
+                    <a class="hoverGreenText" href="/create-a-post">New Post</a>
                     <span class="padding"></span>
-                    <a href="/logout">Logout</a>
+                    <a class="hoverGreenText" href="/logout">Logout</a>
                     {{else}}
-                    <a href="/login">Login</a>
+                    <a class="hoverGreenText" href="/login">Login</a>
                     {{end}}
+                </div>
+                <div id="menuIcon" onclick="toggleMobileMenu(this)">
+                    <div class="menuIconBars"></div>
+                    <div class="menuIconBars"></div>
+                    <div class="menuIconBars"></div>
+                    <ul class="mobile-menu">
+                        {{if .LoggedUser.IsLoggedIn}}
+                        <li><h4 id="user-info" class="inline"
+                                style="padding-left: 4px; color: yellowgreen;">{{.LoggedUser.Username}}</h4></li>
+                        <li><a class="hoverGreenText" href="/create-a-post">New
+                                Post</a></li>
+                        <li><a class="hoverGreenText"
+                                href="/logout">Logout</a></li>
+                        {{else}}
+                        <li><a class="hoverGreenText"
+                                href="/login">Login</a></li>
+                        {{end}}
+                    </ul>
                 </div>
             </nav>
         </header>
@@ -43,11 +61,13 @@
                     id="createPostBodyText" placeholder="Text (Required)"
                     maxlength="1500"></textarea>
                 <label for="item-3" class="toggle">Choose a topic!</label>
-                <input type="checkbox" name="one" id="item-3" class="hide-input" checked>
+                <input type="checkbox" name="one" id="item-3" class="hide-input"
+                    checked>
                 <div class="toggle-el">
                     <div>
                         {{range .Category}}
-                        <input type="checkbox" name="categories" value="{{.Text}}">
+                        <input type="checkbox" name="categories"
+                            value="{{.Text}}">
                         <label for="category1">{{.Text}}</label><br>
                         {{end}}
                     </div>
@@ -66,6 +86,10 @@
         function OnInput() {
           this.style.height = 0;
           this.style.height = (this.scrollHeight) + "px";
+        }
+        
+        function toggleMobileMenu(menu) {
+            menu.classList.toggle('open');
         }
     </script>
 </html>

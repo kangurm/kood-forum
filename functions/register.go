@@ -17,7 +17,10 @@ func InitDb() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	SetUpDatabase(db)
 }
+
 func CloseDb() {
 	db.Close()
 	fmt.Println("Database closed")

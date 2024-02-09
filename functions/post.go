@@ -18,27 +18,34 @@ type Post struct {
 	Username     string
 }
 
+// GetPostsFromDb retrieves all posts from db
+// returns them as slice of Posts structs
 func GetPostsFromDb() ([]Post, error) {
+	//selects all rows from post tabel and returns *sql.rows pointer value
 	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created, like_count, dislike_count, comment_count, username FROM post")
 	if err != nil {
 		fmt.Println(err)
 	}
+	//execution of row.Close soon as function returns
 	defer rows.Close()
 
 	var posts []Post
 
+	//iterates over the rows in the result set
 	for rows.Next() {
 		var post Post
+		//scans the values from current row into Post struct.
 		if err := rows.Scan(&post.Post_id, &post.User_id, &post.Title, &post.Text, &post.Created, &post.LikeCount, &post.DislikeCount, &post.CommentCount, &post.Username); err != nil {
+			//if an error occured during scanning, it returns nil and and the error
 			return nil, err
 		}
 		posts = append(posts, post)
 	}
-
+	//if any error occured during the iteration. If an error occured, it returns nil and error
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-
+	// if no errors then function returns error slice
 	return posts, nil
 }
 

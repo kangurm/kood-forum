@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Sort by the amount of likes/dislikes on post.
 func SortByTop(posts []Post) ([]Post, error) {
 	sort.Slice(posts, func(i, j int) bool {
 		return posts[i].LikeCount > posts[j].LikeCount
@@ -13,14 +14,13 @@ func SortByTop(posts []Post) ([]Post, error) {
 	return posts, nil
 }
 
+// Sort by date, newest first.
 func SortByNew(posts []Post) ([]Post, error) {
 	sort.Slice(posts, func(i, j int) bool {
 		timeI, errI := time.Parse("2006-01-02 15:04:05", posts[i].Created)
 		timeJ, errJ := time.Parse("2006-01-02 15:04:05", posts[j].Created)
 
 		if errI != nil || errJ != nil {
-			// Handle parsing errors if any
-			// For simplicity, consider posts with parsing errors as not greater
 			return false
 		}
 

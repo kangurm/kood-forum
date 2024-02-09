@@ -78,17 +78,17 @@ func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, 
 	}
 
 	var exists bool
-	
+
 	var template string
 	var postOrComment int
-	
+
 	// Siis see tahendab et anname commentile reactioni
 	if comment_id != 0 {
 		err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id = ? AND "+reactionType+" = ?)", comment_id, 0).Scan(&exists)
 		if remove && exists {
 			fmt.Println("Returned early from comment, because remove and like_count(dislike_count) = 0")
 			return err
-		}else if remove {
+		} else if remove {
 			// template: ("UPDATE comment SET like_count = like_count - 1 WHERE id = ?")
 			template = "UPDATE comment SET " + reactionTypeToRemove + " = " + reactionTypeToRemove + " - 1 WHERE id = ?"
 			reactionType = reactionTypeToRemove
@@ -107,7 +107,7 @@ func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, 
 		if remove && exists {
 			fmt.Println("Returned early from post, because remove and like_count(dislike_count) = 0")
 			return err
-		}else if remove {
+		} else if remove {
 			// template: ("UPDATE post SET like_count = like_count - 1 WHERE id = ?")
 			template = "UPDATE post SET " + reactionTypeToRemove + " = " + reactionTypeToRemove + " - 1 WHERE id = ?"
 			reactionType = reactionTypeToRemove
@@ -221,4 +221,34 @@ func AddReaction(post_id int, comment_id int, user_id int, like bool) {
 			fmt.Println("Error registering reaction to db ln217")
 		}
 	}
+}
+
+// NOT IN USE YET. Purpose is to show green highlight wher user has liked a post or red highlight when disliked.
+func HasActiveReaction(post_id int, comment_id int, user_id int) (bool, bool) {
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM reaction WHERE post_id = ? AND comment_id = ? AND user_id = ?)", post_id, comment_id, user_id).Scan(&exists)
+	if err != nil {
+		fmt.Println("error in HasActivereaction line 230")
+		return false, false
+	}
+
+	var previousReactionInt int
+
+	err = db.QueryRow("SELECT reaction_bool FROM reaction WHERE post_id = ? AND comment_id = ? AND user_id = ?", post_id, comment_id, user_id).Scan(&previousReactionInt)
+	if err != nil {
+		fmt.Println("No previous reaction to select.")
+		return false, false
+	}
+
+	var liked bool
+	var disliked bool
+
+	if previousReactionInt == 0 {
+		liked = false
+		disliked = true
+	} else if previousReactionInt == 1 {
+		liked = true
+		disliked = false
+	}
+	return liked, disliked
 }
