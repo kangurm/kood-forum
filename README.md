@@ -7,7 +7,7 @@
 
 ## Info
 
-This web forum project enables user communication through posts and comments, supports categorization of posts, and allows users to like or dislike both posts and comments. It features filtering options to navigate through content easily..
+This web forum project enables user communication through posts and comments, supports categorization of posts, and allows users to like or dislike both posts and comments. It features filtering options to navigate through content easily.
 
 ## Accessing the Forum
 
