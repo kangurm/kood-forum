@@ -39,6 +39,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	// Posts sorting logic: retrieves posts from db and checks for a sorting
 	//parameters in the URL query string and sorts the posts accordingly
 	posts, err := functions.GetPostsFromDb()
+	fmt.Print("here is posts slice", posts)
 	if err != nil {
 		fmt.Println(err)
 	}
