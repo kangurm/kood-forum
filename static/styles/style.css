@@ -75,9 +75,6 @@ footer {
     margin: 6px 0;
 }
 
-#menuIcon {
-    cursor: pointer;
-}
 
 #menuIcon:hover {
     cursor: pointer;
@@ -265,9 +262,10 @@ ul li {
 
 #menuIcon {
     display: none;
+    cursor: pointer;
 }
 
-@media only screen and (max-width: 512px) {
+@media only screen and (max-width: 760px) {
     .fixedContainer {
         font-size: 10px;
     }
@@ -288,6 +286,7 @@ ul li {
     }
     #menuIcon {
         display: block;
+        margin: 5px;
     }
 }
 
