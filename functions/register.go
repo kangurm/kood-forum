@@ -10,22 +10,7 @@ import (
 
 var db *sql.DB
 
-func InitDb() {
-	var err error
-	db, err = sql.Open("sqlite3", "db/database.db")
-	fmt.Println("database opened")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	SetUpDatabase(db)
-}
-
-func CloseDb() {
-	db.Close()
-	fmt.Println("Database closed")
-}
-
+// Register new username to database from given strings
 func RegisterUserToDb(username, firstname, lastname, password, email string) {
 
 	statement, err := db.Prepare("INSERT INTO user(username, firstname, lastname, password, email) VALUES(?, ?, ?, ?, ?)")
@@ -40,7 +25,8 @@ func RegisterUserToDb(username, firstname, lastname, password, email string) {
 		return
 	}
 	fmt.Println("Inserted data into database:", username, firstname, lastname, email)
-}
+
+} //UserExists check if user with a specific username or email already exists
 func UserExists(username, email string) (bool, error) {
 	var exists bool
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM user WHERE username = ? OR email = ?)", username, email).Scan(&exists)

@@ -5,12 +5,15 @@ import (
 	"time"
 )
 
-// Sort by the amount of likes/dislikes on post.
+// SortByTop function sorting posts by the amount of likes/dislikes on post.
 func SortByTop(posts []Post) ([]Post, error) {
+	//sorting function. takes two argument. slice to be sorted and less function.
+	//wheter the element with [i] should sort before element with index [j]
 	sort.Slice(posts, func(i, j int) bool {
+		//returns the true if likecount i > likecount j
 		return posts[i].LikeCount > posts[j].LikeCount
 	})
-
+	//error is always nil because sorting operation cannot fail
 	return posts, nil
 }
 

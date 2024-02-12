@@ -7,12 +7,12 @@
 
 ## Info
 
-This web forum project enables user communication through posts and comments, supports categorization of posts, and allows users to like or dislike both posts and comments. It features filtering options to navigate through content easily.
+This web forum project enables user communication through posts and comments, supports categorization of posts, and allows users to like or dislike both posts and comments. It features filtering options to navigate through content easily..
 
 ## Accessing the Forum
 
 Pre-saved users for login: email: username@username.ee, password: username  
-Example: username: mati, email: mati@mati.ee, password: mati.
+Example: username: Mati, email: Mati@mati.ee password: Mati
 
 New Users: Feel free to register a new account directly on the forum.
 
@@ -48,35 +48,31 @@ This message shows that your installation appears to be working correctly. <br>
 
 4. **Ensure youre in the forum folder.**
 
-5. **Build the image with following command. PS! Ending with a dot. forum can be named to anything you want**
-
-` docker image build -f Dockerfile -t forum . `
-
-Output should look like this: <br>
-<sub>
- ...                                           <br>
- Successfully built 72fac098e532               <br>
- Successfully tagged forum:latest              <br>
-</sub>
-
-
-6. **Start the container using the image just created**
-
-` docker container run -p 8080:8080 -d --name testcontainer forum `
-
-
-7. **Stop the container from running**
-
-` docker stop testcontainer `
-
-8. **Delete the created newly created container and image.**
-
-` docker rmi -f forum      `                <br>
-
-` docker rm -f testcontainer `              <br>
-
-9. **You can run dockertest.sh file what autamatically run all steps and starts the server.**
+5. **You can run dockertest.sh file what autamatically run all steps and starts the server.**
 
 ` chmod +x dockertest.sh `
 
 ` ./dockertest.sh `
+
+6. **If you want to run forum project manually then follow these steps:**
+
+7. **Build the image with following command. PS! Ending with a dot. forum can be named to anything you want**
+
+` docker build -t forum . `
+
+
+8. **Start the container using the image just created**
+
+` docker run -p 8080:8080 --name forumcontainer forum `
+
+9. **Stop the container from running**
+
+` docker stop forumcontainer `
+
+10. **Delete the created newly created container and image.**
+
+` docker rmi -f forum      `                <br>
+
+` docker rm -f forumcontainer `              <br>
+
+

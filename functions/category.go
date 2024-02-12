@@ -13,6 +13,7 @@ type Category struct {
 	NoPosts bool
 }
 
+// GetAllCategoriesFromDb retrieves all categories from category table
 func GetAllCategoriesFromDb() ([]Category, error) {
 	rows, err := db.Query("SELECT id, text, url, created FROM category")
 	if err != nil {
@@ -32,6 +33,9 @@ func GetAllCategoriesFromDb() ([]Category, error) {
 	return categories, nil
 }
 
+// RegisterPostCategoriestoDb iterates over each category name, gets the id of the category,
+// Prepares a SQL statment to insert a new row into post_category table and executes the statment
+// Data will be stored in post_category table
 func RegisterPostCategoriesToDb(post_id int, categoryNames []string) error {
 	for _, categoryName := range categoryNames {
 		category_id := GetCategoryID(categoryName)
@@ -51,6 +55,7 @@ func RegisterPostCategoriesToDb(post_id int, categoryNames []string) error {
 	return nil
 }
 
+// getCategoryNamesForPost takes all categories by id from category table
 func GetCategoryNamesForPost(category_ids []int) ([]string, error) {
 	var categoryNames []string
 	for _, category_id := range category_ids {
@@ -70,6 +75,7 @@ func GetCategoryNamesForPost(category_ids []int) ([]string, error) {
 	return categoryNames, nil
 }
 
+// GetAllCategoryIDsForPost is needed to get all category_ids from post category table
 func GetAllCategoryIDsForPost(post_id int) ([]int, error) {
 	rows, err := db.Query("SELECT category_id FROM post_category WHERE post_id = ?", post_id)
 	if err != nil {
@@ -86,7 +92,7 @@ func GetAllCategoryIDsForPost(post_id int) ([]int, error) {
 		}
 		category_ids = append(category_ids, id)
 	}
-
+	//if any error occured during iteration
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -94,7 +100,7 @@ func GetAllCategoryIDsForPost(post_id int) ([]int, error) {
 	return category_ids, nil
 }
 
-// helper function
+// GetCategoryID gets id of category with the given name.
 func GetCategoryID(categoryName string) int {
 	category_id := 0
 	err := db.QueryRow("SELECT id FROM category WHERE text = ?", categoryName).Scan(&category_id)
@@ -115,6 +121,7 @@ func DoesCategoryExist(categoryURL string) bool {
 	return exists
 }
 
+// GetCurrentCategory function retrieves a category from a database based on its URL.
 func GetCurrentCategory(categoryURL string) (Category, error) {
 	var currentCategory Category
 	err := db.QueryRow("SELECT id, text, url, created FROM category WHERE url = ?", categoryURL).Scan(&currentCategory.ID, &currentCategory.Text, &currentCategory.URL, &currentCategory.Created)
@@ -124,6 +131,8 @@ func GetCurrentCategory(categoryURL string) (Category, error) {
 	return currentCategory, nil
 }
 
+// GetAllPostIDSByCategory retrieves all post id-s associated with specific category
+// from post category table
 func GetAllPostIDsByCategory(category_id int) ([]int, error) {
 	rows, err := db.Query("SELECT post_id FROM post_category WHERE category_id = ?", category_id)
 	if err != nil {
@@ -148,6 +157,7 @@ func GetAllPostIDsByCategory(category_id int) ([]int, error) {
 	return category_ids, nil
 }
 
+// GetAllPostsByPostIDs retrieves all posts associated with a list of post IDS from post table
 func GetAllPostsByPostIDs(post_ids []int) ([]Post, error) {
 	var posts []Post
 

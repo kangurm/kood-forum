@@ -3,10 +3,27 @@ package functions
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	// Import the SQLite3 driver
 	_ "github.com/mattn/go-sqlite3"
 )
+
+func InitDb() {
+	var err error
+	db, err = sql.Open("sqlite3", "db/database.db")
+	fmt.Println("database opened")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	SetUpDatabase(db)
+}
+
+func CloseDb() {
+	db.Close()
+	fmt.Println("Database closed")
+}
 
 func SetUpDatabase(db *sql.DB) error {
 

@@ -43,7 +43,6 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 	//r.URL.Query method returns the first value associated with the given key "sort"
-	//if there is no such key, it returns an empty string
 	action := r.URL.Query().Get("sort")
 	switch action {
 	//sorting by the most liked comments
@@ -61,7 +60,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("No sort done.")
 	}
 
-	// Get categories for posts to display them.
+	// Get categories for posts to display them on postbar.
 	for i, post := range posts {
 		category_ids, err := functions.GetAllCategoryIDsForPost(post.Post_id)
 		if err != nil {
@@ -88,13 +87,13 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Error getting categories: ", err)
 	}
-
+	//this block check if there are posts or no
+	//it is needed because to display a text "No posts in this category"
 	var comments struct{}
 	currentCategory := functions.Category{}
 	if len(posts) == 0 {
 		currentCategory.NoPosts = true
 		data := functions.BuildResponse(loggedUser, posts, comments, categories, currentCategory)
-		fmt.Println(data)
 		tpl.ExecuteTemplate(w, "index.html", data)
 		return
 	}
@@ -105,7 +104,9 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "index.html", data)
 }
 
+// RegisterHandler handles user registration
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	//This block is needed to redirect to index if user is already logged in
 	log.Println("Received (/register) a request with method:", r.Method)
 	if r.Method == "GET" {
 		loggedUser, err := functions.AuthenticateUser(w, r)
@@ -160,7 +161,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// LoginHandler handles user login. It authenticates, checks password
+// invalidates any existing sessions, generates a new session and sets a new session cookie
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+
+	//This block is needed to redirect to index if user is already logged in
 	if r.Method == "GET" {
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil {
@@ -186,7 +191,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		email := r.FormValue("email")
 		password := r.FormValue("password")
-
+		//is needed to check the existing user from db, message on index and error msg on login
 		user, err := functions.GetUserByEmail(email)
 		if err != nil {
 			log.Printf("Error retrieving user: %v\n", err)
@@ -203,7 +208,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			tpl.ExecuteTemplate(w, "login.html", data)
 			return
 		}
-
+		//this is done to ensure that the client uses the new session ID
 		err = functions.DeleteSessionFromDb(user.Id)
 		if err != nil {
 			fmt.Println("Failed to delete session from database after user logged in")
@@ -219,7 +224,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		err = functions.StoreSessionInDb(sessionID, *user)
 		if err != nil {
-			fmt.Println("OI EI", err)
+			fmt.Println("Error in login handler line 227", err)
 		}
 
 		cookieName := "forum"
@@ -229,9 +234,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// LogoutHandler authenticates the user, deletes their session from db
+// removes the session cookie from the browser
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	functions.NoCacheHeaders(w)
+	//this block activates if there are no usher loged in and redirect to index
 	fmt.Println("ERROR in logoutHandler 223")
 	loggedUser, err := functions.AuthenticateUser(w, r)
 	if err != nil || loggedUser.Id == 0 {
@@ -251,9 +259,13 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	functions.RemoveCookieFromClient(w)
 	fmt.Printf("Deleted %v's session", loggedUser.Id)
 	http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+	//its needed because otherwise would be statuscode 201 what will
+	//store cookie and logout would be possible only by deleting manually browser cache.
+	//status code 301 indicates a permanent redirect
 	w.WriteHeader(301)
 }
 
+// CreateAPostHandler handles the process of creating a new post.
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
@@ -263,6 +275,9 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			return
 		}
+		//this block retrieves all categories form db,
+		//builds a response data struckture containg all the data below,
+		//renders a template
 		var posts struct{}
 		var comments struct{}
 		categories, err := functions.GetAllCategoriesFromDb()
@@ -279,8 +294,6 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
 		}
 
-		// TODO: Add categories to html and use them here.
-
 		postTitle := r.FormValue("userPostTitle")
 		postBody := r.FormValue("userPostBodyText")
 		categories := r.Form["categories"]
@@ -289,7 +302,6 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil || loggedUser.Id == 0 {
 			fmt.Println("User is not logged in. Redirecting to login.")
-			// TODO: Replace with message to login
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 		}
 
@@ -299,31 +311,18 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		functions.RegisterPostToDb(loggedUser.Id, postTitle, postBody, username)
 		post_id := functions.GetPostByContent(loggedUser.Id, postTitle, postBody)
-		fmt.Println(post_id)
 		functions.RegisterPostCategoriesToDb(post_id, categories)
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 }
 
-func ErrorHandler(w http.ResponseWriter, s string, i int) {
-
-	data := struct {
-		StatusCode int
-		Message    string
-	}{
-		StatusCode: i,
-		Message:    s,
-	}
-
-	w.WriteHeader(i)
-	tpl.ExecuteTemplate(w, "error.html", data)
-}
-
+// PostHandler handles the process of retrieving a specifi post and its comments.
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	functions.NoCacheHeaders(w)
+	//this block takes postid from url and converts it into int
+	//its needed because of to make post request from db
 	parts := strings.Split(r.URL.Path, "/")
 	postID := parts[2]
-	fmt.Printf("PostID:%s\n", postID)
 	post_id, err := strconv.Atoi(postID)
 	if err != nil {
 		fmt.Println("error in string conversion to int. 326")
@@ -363,6 +362,8 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "post.html", data)
 }
 
+// CreateACommentHandler handles POST requests to create a comment on a post
+// It authendicates the user, parses the form data, validates the data, reggister into database
 func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 
@@ -373,18 +374,17 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 			//http.Redirect(w, r, "/login?next="+r.URL.RequestURI(), http.StatusSeeOther)
 			return
 		}
-
+		//parses the form data from http request
 		err = r.ParseForm()
 		if err != nil {
 			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
 			return
 		}
-
+		//retrieves the data from comment field
 		commentBody := r.FormValue("comment")
 		fmt.Println(commentBody)
-
+		//this block takes post id from url to connect comment id with post id
 		postIDStr := r.URL.Query().Get("post_id")
-		fmt.Println("postIDStr:", postIDStr)
 		postID, err := strconv.Atoi(postIDStr)
 		if err != nil {
 			ErrorHandler(w, "Invalid post ID", http.StatusBadRequest)
@@ -401,6 +401,8 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ReactionHandler handles reaction on a post or a comment. It authendicates the user
+// retrieves the post id, comment id and action from url query parameters, add reaction to db
 func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 	functions.NoCacheHeaders(w)
 	if r.Method == "GET" {
@@ -427,7 +429,6 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("error converting comment_id")
 		}
 		fmt.Println("Comment id from url: ", comment_id)
-
 		action := r.URL.Query().Get("action")
 		var like bool
 		switch action {
@@ -443,6 +444,9 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CategoryHandler handles HTTP requests related to a specific category.
+// Retrieves the category, its associated posts, all categories, sorts the posts
+// and executes subforum.htm
 func CategoryHandler(w http.ResponseWriter, r *http.Request, categoryURL string) {
 	currentCategory, err := functions.GetCurrentCategory(categoryURL)
 	if err != nil {
@@ -502,4 +506,18 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request, categoryURL string)
 
 	data := functions.BuildResponse(loggedUser, posts, comments, categories, currentCategory)
 	tpl.ExecuteTemplate(w, "subforum.html", data)
+}
+
+func ErrorHandler(w http.ResponseWriter, s string, i int) {
+
+	data := struct {
+		StatusCode int
+		Message    string
+	}{
+		StatusCode: i,
+		Message:    s,
+	}
+
+	w.WriteHeader(i)
+	tpl.ExecuteTemplate(w, "error.html", data)
 }
