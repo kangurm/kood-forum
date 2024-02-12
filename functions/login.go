@@ -13,15 +13,20 @@ type User struct {
 	Password string
 }
 
+// HashPaasord is hasing receiving password by bcrypt function)
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 5)
 	return string(bytes), err
 
 }
+
+// CheckPasswordHash receives bool from hased password match
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
+
+// GetUserByEmail retrives username by email from user table
 func GetUserByEmail(email string) (*User, error) {
 	var user User
 	err := db.QueryRow("SELECT id, email, password FROM user WHERE email = ?", email).Scan(&user.Id, &user.Email, &user.Password)

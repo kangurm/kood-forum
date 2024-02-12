@@ -13,6 +13,7 @@ type Category struct {
 	NoPosts bool
 }
 
+// GetAllCategoriesFromDb retrieves all categories from category table
 func GetAllCategoriesFromDb() ([]Category, error) {
 	rows, err := db.Query("SELECT id, text, url, created FROM category")
 	if err != nil {
@@ -117,6 +118,7 @@ func DoesCategoryExist(categoryURL string) bool {
 	return exists
 }
 
+// GetCurrentCategory function retrieves a category from a database based on its URL.
 func GetCurrentCategory(categoryURL string) (Category, error) {
 	var currentCategory Category
 	err := db.QueryRow("SELECT id, text, url, created FROM category WHERE url = ?", categoryURL).Scan(&currentCategory.ID, &currentCategory.Text, &currentCategory.URL, &currentCategory.Created)
@@ -126,6 +128,8 @@ func GetCurrentCategory(categoryURL string) (Category, error) {
 	return currentCategory, nil
 }
 
+// GetAllPostIDSByCategory retrieves all post id-s associated with specific category
+// from post category table
 func GetAllPostIDsByCategory(category_id int) ([]int, error) {
 	rows, err := db.Query("SELECT post_id FROM post_category WHERE category_id = ?", category_id)
 	if err != nil {
@@ -150,6 +154,7 @@ func GetAllPostIDsByCategory(category_id int) ([]int, error) {
 	return category_ids, nil
 }
 
+// GetAllPostsByPostIDs retrieves all posts associated with a list of post IDS from post table
 func GetAllPostsByPostIDs(post_ids []int) ([]Post, error) {
 	var posts []Post
 

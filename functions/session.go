@@ -18,6 +18,9 @@ type LoggedUser struct {
 	DislikePost    bool
 }
 
+// GenerateSessionID function generates a session id by hashing the given password
+// by using bcrypt algorithm
+// function is needed to not track users from sessions
 func GenerateSessionID(password string) (string, error) {
 
 	// Generate a random 16-byte session ID
@@ -33,6 +36,9 @@ func GenerateSessionID(password string) (string, error) {
 	return sessionIDstring, nil
 }
 
+// GenerateCookieName generates a cookie name by hashing the given email
+// using the bcrypt algorithm
+// NOT IN USE
 func GenerateCookieName(email string) (string, error) {
 
 	emailBytes := []byte(email)
@@ -46,6 +52,8 @@ func GenerateCookieName(email string) (string, error) {
 	return name, err
 }
 
+// NewCookie creates a new HTTP cookie with specified name and value
+// Sets it on the HTTP response.
 func NewCookie(w http.ResponseWriter, key string, value string) {
 	cookie := http.Cookie{
 		Name:  key,
@@ -70,6 +78,7 @@ func StoreSessionInDb(sessionID string, userData User) error {
 	return err
 }
 
+// GetUserIdFromSession requests user id from session table
 func GetUserIdFromSession(sessionID string) (int, error) {
 	rows, err := db.Query("SELECT user_id FROM session WHERE session_id = ?", sessionID)
 	if err != nil {
@@ -88,6 +97,7 @@ func GetUserIdFromSession(sessionID string) (int, error) {
 	return user_id, nil
 }
 
+// DeleteSessionFromDb deletes user's session from the session table using the user id
 func DeleteSessionFromDb(user_id int) error {
 
 	fmt.Println("User id: ", user_id)
@@ -107,10 +117,11 @@ func DeleteSessionFromDb(user_id int) error {
 }
 
 // AuthenticateUser function is needed to understand if user is logged in or not
+// based on cookie in an HTTP request
 func AuthenticateUser(w http.ResponseWriter, r *http.Request) (LoggedUser, error) {
 
 	var loggedUser LoggedUser
-
+	//request cookie from HTTP request
 	cookie, err := r.Cookie("forum")
 	if err != nil {
 		return LoggedUser{}, err
@@ -135,6 +146,7 @@ func AuthenticateUser(w http.ResponseWriter, r *http.Request) (LoggedUser, error
 	return loggedUser, nil
 }
 
+// RemoveCookieFromClient removes cookie named "Forum" from clients browser
 func RemoveCookieFromClient(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:   "forum",
