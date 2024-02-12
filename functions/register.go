@@ -10,22 +10,6 @@ import (
 
 var db *sql.DB
 
-func InitDb() {
-	var err error
-	db, err = sql.Open("sqlite3", "db/database.db")
-	fmt.Println("database opened")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	SetUpDatabase(db)
-}
-
-func CloseDb() {
-	db.Close()
-	fmt.Println("Database closed")
-}
-
 func RegisterUserToDb(username, firstname, lastname, password, email string) {
 
 	statement, err := db.Prepare("INSERT INTO user(username, firstname, lastname, password, email) VALUES(?, ?, ?, ?, ?)")

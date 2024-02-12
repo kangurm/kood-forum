@@ -106,6 +106,7 @@ func DeleteSessionFromDb(user_id int) error {
 	return nil
 }
 
+// AuthenticateUser function is needed to understand if user is logged in or not
 func AuthenticateUser(w http.ResponseWriter, r *http.Request) (LoggedUser, error) {
 
 	var loggedUser LoggedUser

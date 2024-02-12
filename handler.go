@@ -39,12 +39,10 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	// Posts sorting logic: retrieves posts from db and checks for a sorting
 	//parameters in the URL query string and sorts the posts accordingly
 	posts, err := functions.GetPostsFromDb()
-	fmt.Print("here is posts slice", posts)
 	if err != nil {
 		fmt.Println(err)
 	}
 	//r.URL.Query method returns the first value associated with the given key "sort"
-	//if there is no such key, it returns an empty string
 	action := r.URL.Query().Get("sort")
 	switch action {
 	//sorting by the most liked comments
@@ -62,7 +60,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("No sort done.")
 	}
 
-	// Get categories for posts to display them.
+	// Get categories for posts to display them on postbar.
 	for i, post := range posts {
 		category_ids, err := functions.GetAllCategoryIDsForPost(post.Post_id)
 		if err != nil {

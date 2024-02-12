@@ -51,6 +51,7 @@ func RegisterPostCategoriesToDb(post_id int, categoryNames []string) error {
 	return nil
 }
 
+// getCategoryNamesForPost takes all categories by id from category table
 func GetCategoryNamesForPost(category_ids []int) ([]string, error) {
 	var categoryNames []string
 	for _, category_id := range category_ids {
@@ -70,6 +71,7 @@ func GetCategoryNamesForPost(category_ids []int) ([]string, error) {
 	return categoryNames, nil
 }
 
+// GetAllCategoryIDsForPost is needed to get all category_ids from post category table
 func GetAllCategoryIDsForPost(post_id int) ([]int, error) {
 	rows, err := db.Query("SELECT category_id FROM post_category WHERE post_id = ?", post_id)
 	if err != nil {
@@ -86,7 +88,7 @@ func GetAllCategoryIDsForPost(post_id int) ([]int, error) {
 		}
 		category_ids = append(category_ids, id)
 	}
-
+	//if any error occured during iteration
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
