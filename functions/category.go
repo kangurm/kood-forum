@@ -33,6 +33,9 @@ func GetAllCategoriesFromDb() ([]Category, error) {
 	return categories, nil
 }
 
+// RegisterPostCategoriestoDb iterates over each category name, gets the id of the category,
+// Prepares a SQL statment to insert a new row into post_category table and executes the statment
+// Data will be stored in post_category table
 func RegisterPostCategoriesToDb(post_id int, categoryNames []string) error {
 	for _, categoryName := range categoryNames {
 		category_id := GetCategoryID(categoryName)
@@ -97,7 +100,7 @@ func GetAllCategoryIDsForPost(post_id int) ([]int, error) {
 	return category_ids, nil
 }
 
-// helper function
+// GetCategoryID gets id of category with the given name.
 func GetCategoryID(categoryName string) int {
 	category_id := 0
 	err := db.QueryRow("SELECT id FROM category WHERE text = ?", categoryName).Scan(&category_id)

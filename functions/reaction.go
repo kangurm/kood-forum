@@ -14,6 +14,7 @@ type Reaction struct {
 	Created     string
 }
 
+// RegisterReactionToDb registers user's reaction to a post or a comment in reaction table
 func RegisterReactionToDb(post_id int, comment_id int, user_id int, like int) error {
 	statement, err := db.Prepare("INSERT INTO reaction(post_id, comment_id, user_id, reaction_bool) VALUES(?, ?, ?, ?)")
 	if err != nil {
@@ -29,6 +30,8 @@ func RegisterReactionToDb(post_id int, comment_id int, user_id int, like int) er
 	return nil
 }
 
+// RemoveReaction removes a reaction from a comment/post by updating the reaction count,
+// and deleting the reaction from the reaction table
 // reactionToRemove must be one of the following: "like_count", "dislike_count", "comment_count"
 func RemoveReaction(post_id int, comment_id int, user_id int, reactionToRemove string) error {
 
@@ -51,7 +54,8 @@ func RemoveReaction(post_id int, comment_id int, user_id int, reactionToRemove s
 }
 
 func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, remove bool, reactionTypeToRemove string) error {
-	// ehk me ei taha midagi lisada ja eemaldada.
+	// dont want to add or remove anything
+
 	if reactionTypeToAdd == "" && !remove {
 		return fmt.Errorf("returned early from UpdateReactionCount, because input was invalid")
 	}
@@ -70,7 +74,6 @@ func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, 
 		doRecursive = false
 	}
 	// If we only need to add count
-	// ainult väärtus on reactiontypetoadd
 	if reactionTypeToRemove == "" && !remove && reactionTypeToAdd != "" {
 		reactionType = reactionTypeToAdd
 		//ainult lisab
@@ -82,7 +85,7 @@ func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, 
 	var template string
 	var postOrComment int
 
-	// Siis see tahendab et anname commentile reactioni
+	// we will give to comment reaction
 	if comment_id != 0 {
 		err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id = ? AND "+reactionType+" = ?)", comment_id, 0).Scan(&exists)
 		if remove && exists {
@@ -101,7 +104,7 @@ func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, 
 		}
 	}
 
-	// siis anname postile reactioni
+	//we will give to post reaction
 	if comment_id == 0 {
 		err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ? AND "+reactionType+" = ?)", post_id, 0).Scan(&exists)
 		if remove && exists {
@@ -158,7 +161,7 @@ func UpdateReactionCount(post_id int, comment_id int, reactionTypeToAdd string, 
 	return nil
 }
 
-// Adds reaction to post, deals with reaction counts on post and automatically removes previous reactions.
+// AddReaction adds reaction to post, deals with reaction counts on post and automatically removes previous reactions.
 // like = false is dislike, like = true is like, leave comment to false if no comment. If comment = true then adds comment.
 func AddReaction(post_id int, comment_id int, user_id int, like bool) {
 	reaction := 0

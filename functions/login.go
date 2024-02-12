@@ -36,6 +36,7 @@ func GetUserByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
+// GetUserByID retrieves the username from user table with given id
 func GetUserByID(userID int) (string, error) {
 
 	rows, err := db.Query("SELECT username FROM user WHERE id= ?", userID)

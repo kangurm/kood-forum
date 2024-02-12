@@ -234,9 +234,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// LogoutHandler authenticates the user, deletes their session from db
+// removes the session cookie from the browser
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	functions.NoCacheHeaders(w)
+	//this block activates if there are no usher loged in and redirect to index
 	fmt.Println("ERROR in logoutHandler 223")
 	loggedUser, err := functions.AuthenticateUser(w, r)
 	if err != nil || loggedUser.Id == 0 {
@@ -256,9 +259,13 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	functions.RemoveCookieFromClient(w)
 	fmt.Printf("Deleted %v's session", loggedUser.Id)
 	http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+	//its needed because otherwise would be statuscode 201 what will
+	//store cookie and logout would be possible only by deleting manually browser cache.
+	//status code 301 indicates a permanent redirect
 	w.WriteHeader(301)
 }
 
+// CreateAPostHandler handles the process of creating a new post.
 func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
@@ -268,6 +275,9 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			return
 		}
+		//this block retrieves all categories form db,
+		//builds a response data struckture containg all the data below,
+		//renders a template
 		var posts struct{}
 		var comments struct{}
 		categories, err := functions.GetAllCategoriesFromDb()
@@ -284,8 +294,6 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
 		}
 
-		// TODO: Add categories to html and use them here.
-
 		postTitle := r.FormValue("userPostTitle")
 		postBody := r.FormValue("userPostBodyText")
 		categories := r.Form["categories"]
@@ -294,7 +302,6 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil || loggedUser.Id == 0 {
 			fmt.Println("User is not logged in. Redirecting to login.")
-			// TODO: Replace with message to login
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 		}
 
@@ -304,17 +311,18 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		functions.RegisterPostToDb(loggedUser.Id, postTitle, postBody, username)
 		post_id := functions.GetPostByContent(loggedUser.Id, postTitle, postBody)
-		fmt.Println(post_id)
 		functions.RegisterPostCategoriesToDb(post_id, categories)
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 }
 
+// PostHandler handles the process of retrieving a specifi post and its comments.
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	functions.NoCacheHeaders(w)
+	//this block takes postid from url and converts it into int
+	//its needed because of to make post request from db
 	parts := strings.Split(r.URL.Path, "/")
 	postID := parts[2]
-	fmt.Printf("PostID:%s\n", postID)
 	post_id, err := strconv.Atoi(postID)
 	if err != nil {
 		fmt.Println("error in string conversion to int. 326")
@@ -354,6 +362,8 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "post.html", data)
 }
 
+// CreateACommentHandler handles POST requests to create a comment on a post
+// It authendicates the user, parses the form data, validates the data, reggister into database
 func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 
@@ -364,18 +374,17 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 			//http.Redirect(w, r, "/login?next="+r.URL.RequestURI(), http.StatusSeeOther)
 			return
 		}
-
+		//parses the form data from http request
 		err = r.ParseForm()
 		if err != nil {
 			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
 			return
 		}
-
+		//retrieves the data from comment field
 		commentBody := r.FormValue("comment")
 		fmt.Println(commentBody)
-
+		//this block takes post id from url to connect comment id with post id
 		postIDStr := r.URL.Query().Get("post_id")
-		fmt.Println("postIDStr:", postIDStr)
 		postID, err := strconv.Atoi(postIDStr)
 		if err != nil {
 			ErrorHandler(w, "Invalid post ID", http.StatusBadRequest)
@@ -392,6 +401,8 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ReactionHandler handles reaction on a post or a comment. It authendicates the user
+// retrieves the post id, comment id and action from url query parameters, add reaction to db
 func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 	functions.NoCacheHeaders(w)
 	if r.Method == "GET" {
@@ -418,7 +429,6 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("error converting comment_id")
 		}
 		fmt.Println("Comment id from url: ", comment_id)
-
 		action := r.URL.Query().Get("action")
 		var like bool
 		switch action {

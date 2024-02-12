@@ -17,6 +17,7 @@ type Comment struct {
 	DislikeCount int
 }
 
+// RegisterCommentToDb stores new comment into the comment table.
 func RegisterCommentToDb(user_id int, post_id int, text string, username string) {
 	statement, err := db.Prepare("INSERT INTO comment(user_id, post_id, text, username) VALUES(?, ?, ?, ?)")
 	if err != nil {
@@ -31,6 +32,8 @@ func RegisterCommentToDb(user_id int, post_id int, text string, username string)
 	}
 	fmt.Println("Inserted data into database:", user_id, post_id, text)
 }
+
+// GetCommentsByPostId retrieves the comments of a post with given id from comment table
 func GetCommentsByPostId(post_id int) ([]Comment, error) {
 	rows, err := db.Query("SELECT id, post_id, user_id, text, created, username, like_count, dislike_count FROM comment WHERE post_id = ?", post_id)
 	if err != nil {

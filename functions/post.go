@@ -49,11 +49,13 @@ func GetPostsFromDb() ([]Post, error) {
 	return posts, nil
 }
 
+// GetPostById retrieves a post with a given id from post table
+// Returns a Post struct containig the data of the post
 func GetPostById(postID int) (Post, error) {
-	log.Printf("Fetching post with ID: %d", postID)
+
 	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created, like_count, dislike_count, comment_count, username FROM post WHERE id = ?", postID)
 	if err != nil {
-		fmt.Println("aiaiai")
+		fmt.Println("error in GetPostById function line 57")
 		return Post{}, err
 
 	}
@@ -65,7 +67,7 @@ func GetPostById(postID int) (Post, error) {
 			return Post{}, err
 		}
 	}
-
+	//if error then returns empty struct
 	if err := rows.Err(); err != nil {
 		return Post{}, err
 	}
@@ -73,6 +75,7 @@ func GetPostById(postID int) (Post, error) {
 	return post, nil
 }
 
+// RegisterPostToDb stores new post into post table
 func RegisterPostToDb(user_id int, postTitle, postBody string, username string) {
 
 	statement, err := db.Prepare("INSERT INTO post(user_id, postTitle, postBody, username) VALUES(?, ?, ?, ?)")
@@ -89,6 +92,7 @@ func RegisterPostToDb(user_id int, postTitle, postBody string, username string) 
 	fmt.Println("Inserted data into database:", user_id, postTitle, postBody, username)
 }
 
+// GetPostByContent executes query to get post id with given user id, posttitle and postbody
 func GetPostByContent(user_id int, postTitle, postBody string) int {
 	var post_id int
 	err := db.QueryRow("SELECT id FROM post WHERE user_id = ? AND postTitle = ? AND postBody = ?", user_id, postTitle, postBody).Scan(&post_id)
@@ -99,6 +103,7 @@ func GetPostByContent(user_id int, postTitle, postBody string) int {
 	return post_id
 }
 
+// CheckIfPostExists checks id a post with a given id exists in post table
 func CheckIfPostExists(postID int) (bool, error) {
 	var exists bool
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ?)", postID).Scan(&exists)
