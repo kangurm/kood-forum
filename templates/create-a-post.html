@@ -72,6 +72,9 @@
                         {{end}}
                     </div>
                 </div>
+                {{if .LoggedUser.ErrorMessage}}
+                <div class="error-message">{{.LoggedUser.ErrorMessage}}</div>
+                {{end}}
                 <input type="submit" value="Create!" id="submit">
             </form>
         </div>

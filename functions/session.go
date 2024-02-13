@@ -48,7 +48,6 @@ func GenerateCookieName(email string) (string, error) {
 	}
 
 	name := string(nameBytes)
-	fmt.Printf("Cookie name is: %s\n", name)
 	return name, err
 }
 
@@ -99,8 +98,6 @@ func GetUserIdFromSession(sessionID string) (int, error) {
 
 // DeleteSessionFromDb deletes user's session from the session table using the user id
 func DeleteSessionFromDb(user_id int) error {
-
-	fmt.Println("User id: ", user_id)
 
 	statement, err := db.Prepare("DELETE FROM session WHERE user_id = ?")
 	if err != nil {

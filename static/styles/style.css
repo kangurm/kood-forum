@@ -33,6 +33,7 @@ footer {
 
 .fixedContainer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     background-color: #2d2d30;
@@ -49,12 +50,11 @@ footer {
 
 .forumtitle {
     flex-grow: 1;
-    text-align: center;
+    justify-self: center;
     margin: 0 auto;
     padding: 0 50px; 
     font-family: sans-serif; 
-    position:absolute;
-    left: 38%
+    font-size: calc(100vw - 98vw);
 }
 
 .logo {
@@ -280,10 +280,6 @@ ul li {
     .logo {
         width: 110px;
     }
-    .forumtitle {
-        left: 25vw;
-        font-size: 1rem;
-    }
     #menuIcon {
         display: block;
         margin: 5px;
@@ -493,6 +489,13 @@ ul li {
 }
 
 .postActions {
+    display: flex;
+    justify-content: start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.commentActions {
     display: flex;
     justify-content: start;
     gap: 10px;

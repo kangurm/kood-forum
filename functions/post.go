@@ -3,6 +3,7 @@ package functions
 import (
 	"fmt"
 	"log"
+	"strings"
 )
 
 type Post struct {
@@ -55,7 +56,7 @@ func GetPostById(postID int) (Post, error) {
 
 	rows, err := db.Query("SELECT id, user_id, postTitle, postBody, created, like_count, dislike_count, comment_count, username FROM post WHERE id = ?", postID)
 	if err != nil {
-		fmt.Println("error in GetPostById function line 57")
+		fmt.Println("error in GetPostById ln 57")
 		return Post{}, err
 
 	}
@@ -112,4 +113,13 @@ func CheckIfPostExists(postID int) (bool, error) {
 		return exists, err
 	}
 	return exists, nil
+}
+
+func FormatString(s string) (string, error) {
+	s1 := strings.Join(strings.Fields(s), " ")
+	length := len(s1)
+	if length < 2 {
+		return "", fmt.Errorf("string empty")
+	}
+	return s1, nil
 }

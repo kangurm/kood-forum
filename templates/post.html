@@ -77,6 +77,9 @@
                         maxlength="1500" minlength="2"></textarea>
                     <button type="submit" class="commentSubmit">Submit</button>
                 </form>
+                {{if .LoggedUser.ErrorMessage}}
+                <div class="error-message">{{.LoggedUser.ErrorMessage}}</div>
+                {{end}}
                 {{else}}
                 <p class="login-comment-message">You must log in to comment</p>
                 {{end}}
@@ -88,13 +91,10 @@
                         <p class="commentText">{{.Text}}</p>
                         <span class="commentDate">Created: {{.Created}}</span>
                         <div class="commentActions">
-                            <a
-                                href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=like"
+                            <a href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=like"
                                 class="likeButton">👍 Like ({{.LikeCount}})</a>
-                            <a
-                                href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=dislike"
-                                class="dislikeButton">👎 Dislike
-                                ({{.DislikeCount}})</a>
+                            <a href="/post/react?post_id={{.Post_id}}&comment_id={{.Comment_id}}&action=dislike"
+                                class="dislikeButton">👎 Dislike ({{.DislikeCount}})</a>
                         </div>
                     </div>
                     {{end}}

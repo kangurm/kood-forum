@@ -28,7 +28,7 @@ func CloseDb() {
 func SetUpDatabase(db *sql.DB) error {
 
 	templates := CreateTemplatesArray()
-	for i, template := range templates {
+	for _, template := range templates {
 		statement, err := db.Prepare(template)
 		if err != nil {
 			return err
@@ -39,7 +39,6 @@ func SetUpDatabase(db *sql.DB) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("Succesfully created table index: ", i)
 	}
 
 	return nil // Ensure there's a return at the end of the function
