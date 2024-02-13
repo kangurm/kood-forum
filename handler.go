@@ -3,16 +3,11 @@ package main
 import (
 	"fmt"
 	"forum/functions"
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 )
-
-type TemplateHandler struct {
-	Tpl *template.Template
-}
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -20,7 +15,6 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	//This block parsing the catogory from the URL, if exist then handling CategoryHandler
 	parts := strings.Split(r.URL.Path, "/")
 	categoryURL := parts[1]
-	fmt.Println(categoryURL)
 	bCategoryExists := functions.DoesCategoryExist(categoryURL)
 	if bCategoryExists {
 		CategoryHandler(w, r, categoryURL)
@@ -57,7 +51,6 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error sorting")
 		}
 	default:
-		fmt.Println("No sort done.")
 	}
 
 	// Get categories for posts to display them on postbar.
@@ -107,7 +100,6 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 // RegisterHandler handles user registration
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	//This block is needed to redirect to index if user is already logged in
-	log.Println("Received (/register) a request with method:", r.Method)
 	if r.Method == "GET" {
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil {
@@ -149,7 +141,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		passwordHash, _ := functions.HashPassword(password)
-		fmt.Println("Form data:", username, firstname, lastname, email)
 
 		functions.RegisterUserToDb(username, firstname, lastname, passwordHash, email)
 		w.Header().Set("Content-Type", "text/html")
@@ -240,7 +231,6 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	functions.NoCacheHeaders(w)
 	//this block activates if there are no usher loged in and redirect to index
-	fmt.Println("ERROR in logoutHandler 223")
 	loggedUser, err := functions.AuthenticateUser(w, r)
 	if err != nil || loggedUser.Id == 0 {
 		fmt.Println(err)
@@ -249,7 +239,6 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Error in logoutHandler 242", loggedUser.Id)
 	err = functions.DeleteSessionFromDb(loggedUser.Id)
 	if err != nil {
 		fmt.Println(err)
@@ -257,7 +246,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	functions.RemoveCookieFromClient(w)
-	fmt.Printf("Deleted %v's session", loggedUser.Id)
+	fmt.Printf("Deleted %v's session \n", loggedUser.Id)
 	http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 	//its needed because otherwise would be statuscode 201 what will
 	//store cookie and logout would be possible only by deleting manually browser cache.
@@ -294,15 +283,42 @@ func CreateAPostHandler(w http.ResponseWriter, r *http.Request) {
 			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
 		}
 
-		postTitle := r.FormValue("userPostTitle")
-		postBody := r.FormValue("userPostBodyText")
-		categories := r.Form["categories"]
-		fmt.Println(categories)
-
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil || loggedUser.Id == 0 {
 			fmt.Println("User is not logged in. Redirecting to login.")
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		}
+
+		postTitle := r.FormValue("userPostTitle")
+		postBody := r.FormValue("userPostBodyText")
+		categories := r.Form["categories"]
+
+		postTitle, err = functions.FormatString(postTitle)
+		if err != nil {
+			loggedUser.ErrorMessage = "Post title cannot be empty."
+			var posts struct{}
+			var comments struct{}
+			categories, err := functions.GetAllCategoriesFromDb()
+			if err != nil {
+				fmt.Println("Error getting categories")
+			}
+			data := functions.BuildResponse(loggedUser, posts, comments, categories)
+			tpl.ExecuteTemplate(w, "create-a-post.html", data)
+			return
+		}
+
+		postBody, err = functions.FormatString(postBody)
+		if err != nil {
+			loggedUser.ErrorMessage = "Post body cannot be empty."
+			var posts struct{}
+			var comments struct{}
+			categories, err := functions.GetAllCategoriesFromDb()
+			if err != nil {
+				fmt.Println("Error getting categories")
+			}
+			data := functions.BuildResponse(loggedUser, posts, comments, categories)
+			tpl.ExecuteTemplate(w, "create-a-post.html", data)
+			return
 		}
 
 		username, err := functions.GetUserByID(loggedUser.Id)
@@ -332,10 +348,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("error checking postID from database")
 		return
 	}
-	if postExists {
-		fmt.Println("Post exists")
-	} else {
-		fmt.Println("Post do not exist")
+	if !postExists {
 		ErrorHandler(w, "Page not found", http.StatusNotFound)
 		return
 	}
@@ -369,7 +382,6 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 
 		loggedUser, err := functions.AuthenticateUser(w, r)
 		if err != nil || loggedUser.Id == 0 {
-			fmt.Println("User is not logged in. To make a comment, the user must be logged in.")
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			//http.Redirect(w, r, "/login?next="+r.URL.RequestURI(), http.StatusSeeOther)
 			return
@@ -380,14 +392,30 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 			ErrorHandler(w, "Error parsing the form", http.StatusInternalServerError)
 			return
 		}
-		//retrieves the data from comment field
-		commentBody := r.FormValue("comment")
-		fmt.Println(commentBody)
+
 		//this block takes post id from url to connect comment id with post id
 		postIDStr := r.URL.Query().Get("post_id")
-		postID, err := strconv.Atoi(postIDStr)
+		post_id, err := strconv.Atoi(postIDStr)
 		if err != nil {
 			ErrorHandler(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+
+		currentPost, _ := functions.GetPostById(post_id)
+		//retrieves the data from comment field
+		commentBody := r.FormValue("comment")
+		//Check if there are no more than 2 whitespace.
+		commentBody, err = functions.FormatString(commentBody)
+		if err != nil {
+			loggedUser.ErrorMessage = "Comment cannot be empty."
+
+			currentComments, err := functions.GetCommentsByPostId(post_id)
+			if err != nil {
+				fmt.Println("Error getting comment info from database")
+			}
+
+			data := functions.BuildResponse(loggedUser, currentPost, currentComments)
+			tpl.ExecuteTemplate(w, "post.html", data)
 			return
 		}
 
@@ -396,7 +424,7 @@ func CreateACommentHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error getting username")
 		}
 
-		functions.RegisterCommentToDb(loggedUser.Id, postID, commentBody, username)
+		functions.RegisterCommentToDb(loggedUser.Id, post_id, commentBody, username)
 		http.Redirect(w, r, "/post/"+postIDStr, http.StatusMovedPermanently)
 	}
 }
@@ -418,17 +446,19 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 
 		postIDStr := r.URL.Query().Get("post_id")
 		post_id, err := strconv.Atoi(postIDStr)
-		fmt.Println("Post_id from url: ", post_id)
 		if err != nil {
 			return
 		}
 
+		var comment_id int
 		commentIDStr := r.URL.Query().Get("comment_id")
-		comment_id, err := strconv.Atoi(commentIDStr)
-		if err != nil {
-			fmt.Println("error converting comment_id")
+		if !(commentIDStr == "") {
+			comment_id, err = strconv.Atoi(commentIDStr)
+			if err != nil {
+				fmt.Println("error converting comment_id")
+			}
 		}
-		fmt.Println("Comment id from url: ", comment_id)
+
 		action := r.URL.Query().Get("action")
 		var like bool
 		switch action {
@@ -453,7 +483,6 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request, categoryURL string)
 		fmt.Println("Error getting current category.")
 		return
 	}
-	fmt.Println("CurrentCategory: ", currentCategory)
 	postIDs, err := functions.GetAllPostIDsByCategory(currentCategory.ID)
 	if err != nil {
 		fmt.Println("Error getting post ids by category.")
@@ -478,7 +507,7 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request, categoryURL string)
 			fmt.Println("Error sorting")
 		}
 	default:
-		fmt.Println("No sort done.")
+
 	}
 
 	loggedUser, err := functions.AuthenticateUser(w, r)
@@ -498,7 +527,6 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request, categoryURL string)
 	if len(posts) == 0 {
 		currentCategory.NoPosts = true
 		data := functions.BuildResponse(loggedUser, posts, comments, categories, currentCategory)
-		fmt.Println(data)
 		tpl.ExecuteTemplate(w, "subforum.html", data)
 		return
 
